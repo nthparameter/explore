@@ -1,0 +1,18 @@
+[package]
+name = "tui-test"
+version = "0.1.0"
+authors = ["nthparameter <nthparameter@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+crossterm="0.17"
+tui={version="*", features=["crossterm"], default-features=false}
+
+bitflags = "1.0"
+cassowary = "0.3"
+rand = "0.7"
+unicode-segmentation = "1.2"
+unicode-width = "0.1"
