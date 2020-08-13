@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 
 crossterm="0.17"
-tui={version="*", features=["crossterm"], default-features=false}
+tui={version="0.10", features=["crossterm"], default-features=false}
 
 bitflags = "1.0"
 cassowary = "0.3"

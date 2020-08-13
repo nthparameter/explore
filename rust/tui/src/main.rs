@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut terminal = Terminal::new(backend)?;
 
-    // Setup input handling
+    // Set up input handling
     let (tx, rx) = mpsc::channel();
 
     let tick_rate = Duration::from_millis(200);
@@ -58,11 +58,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     terminal.clear()?;
 
+    const CTRL_Q : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::Char('q'), modifiers: event::KeyModifiers::CONTROL};
+    const KEY_DOWN : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::Down, modifiers: event::KeyModifiers::NONE};
+    const KEY_UP : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::Up, modifiers: event::KeyModifiers::NONE};
+
     loop {
         terminal.draw(|f| ui::draw(f, &mut app))?;
         match rx.recv()? {
-            Event::Input(event) => match event.code {
-                KeyCode::Char('q') => {
+            Event::Input(event) => match event {
+                CTRL_Q => {
                     disable_raw_mode()?;
                     execute!(
                         terminal.backend_mut(),
@@ -71,6 +78,30 @@ fn main() -> Result<(), Box<dyn Error>> {
                     )?;
                     terminal.show_cursor()?;
                     break;
+                }
+                KEY_DOWN => app.on_down(),
+                KEY_UP => app.on_up(),
+                _ => {}
+            },
+            Event::Tick => {
+                app.on_tick();
+            }
+        }
+            /*
+            Event::Input(event) => match event.code {
+                KeyCode::Char('q') => {
+                    let mods = event.modifiers;
+                    if mods == event::KeyModifiers::CONTROL {
+                    //if mods.contains(event::KeyModifiers::CONTROL) {
+                        disable_raw_mode()?;
+                        execute!(
+                            terminal.backend_mut(),
+                            LeaveAlternateScreen,
+                            DisableMouseCapture
+                        )?;
+                        terminal.show_cursor()?;
+                        break;
+                    }
                 }
                 KeyCode::Char(c) => app.on_key(c),
                 KeyCode::Left => app.on_left(),
@@ -83,6 +114,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 app.on_tick();
             }
         }
+        */
         if app.should_quit {
             break;
         }

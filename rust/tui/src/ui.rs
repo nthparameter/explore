@@ -39,7 +39,20 @@ fn draw_first_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    draw_text(f, area);
+    let chunks = Layout::default()
+        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+        .split(area);
+    draw_text(f, chunks[1]);
+
+    let block = Block::default().borders(Borders::NONE).title(Span::styled(
+        "Animals",
+        Style::default()
+            .fg(Color::Magenta)
+            .add_modifier(Modifier::BOLD),
+    ));
+    let text = vec![Spans::from(format!("{}", app.progress))];
+    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    f.render_widget(paragraph, chunks[0]);
 }
 
 fn draw_text<B>(f: &mut Frame<B>, area: Rect)

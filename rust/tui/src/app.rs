@@ -109,11 +109,9 @@ pub struct App<'a> {
     pub tabs: TabsState<'a>,
     pub show_chart: bool,
     pub progress: f64,
-    pub sparkline: Signal<RandomSignal>,
     pub tasks: StatefulList<&'a str>,
     pub logs: StatefulList<(&'a str, &'a str)>,
     pub signals: Signals,
-    pub barchart: Vec<(&'a str, u64)>,
     pub servers: Vec<Server<'a>>,
     pub enhanced_graphics: bool,
 }
@@ -121,7 +119,6 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
         let mut rand_signal = RandomSignal::new(0, 100);
-        let sparkline_points = rand_signal.by_ref().take(300).collect();
         let mut sin_signal = SinSignal::new(0.2, 3.0, 18.0);
         let sin1_points = sin_signal.by_ref().take(100).collect();
         let mut sin_signal2 = SinSignal::new(0.1, 2.0, 10.0);
@@ -132,11 +129,6 @@ impl<'a> App<'a> {
             tabs: TabsState::new(vec!["Tab0", "Tab1"]),
             show_chart: true,
             progress: 0.0,
-            sparkline: Signal {
-                source: rand_signal,
-                points: sparkline_points,
-                tick_rate: 1,
-            },
             tasks: StatefulList::with_items(TASKS.to_vec()),
             logs: StatefulList::with_items(LOGS.to_vec()),
             signals: Signals {
@@ -152,7 +144,6 @@ impl<'a> App<'a> {
                 },
                 window: [0.0, 20.0],
             },
-            barchart: EVENTS.to_vec(),
             servers: vec![
                 Server {
                     name: "NorthAmerica-1",
@@ -218,13 +209,9 @@ impl<'a> App<'a> {
             self.progress = 0.0;
         }
 
-        self.sparkline.on_tick();
         self.signals.on_tick();
 
         let log = self.logs.items.pop().unwrap();
         self.logs.items.insert(0, log);
-
-        let event = self.barchart.pop().unwrap();
-        self.barchart.insert(0, event);
     }
 }
