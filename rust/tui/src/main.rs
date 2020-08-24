@@ -42,14 +42,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut last_tick = Instant::now();
         loop {
             // poll for tick rate duration, if no events, sent tick event.
-            if event::poll(tick_rate - last_tick.elapsed()).unwrap() {
+            let elapsed = last_tick.elapsed();
+            if elapsed >= tick_rate {
+                tx.send(Event::Tick).unwrap();
+                last_tick = Instant::now();
+            } else if event::poll(tick_rate - elapsed).unwrap() {
                 if let CEvent::Key(key) = event::read().unwrap() {
                     tx.send(Event::Input(key)).unwrap();
                 }
-            }
-            if last_tick.elapsed() >= tick_rate {
-                tx.send(Event::Tick).unwrap();
-                last_tick = Instant::now();
             }
         }
     });
@@ -58,6 +58,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     terminal.clear()?;
 
+    const CTRL_O : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::Char('o'), modifiers: event::KeyModifiers::CONTROL};
     const CTRL_Q : event::KeyEvent = event::KeyEvent {
         code: KeyCode::Char('q'), modifiers: event::KeyModifiers::CONTROL};
     const KEY_DOWN : event::KeyEvent = event::KeyEvent {
@@ -69,6 +71,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         terminal.draw(|f| ui::draw(f, &mut app))?;
         match rx.recv()? {
             Event::Input(event) => match event {
+                CTRL_O => app.on_open_file(),
                 CTRL_Q => {
                     disable_raw_mode()?;
                     execute!(
