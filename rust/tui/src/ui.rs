@@ -59,7 +59,7 @@ fn draw_text<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let text = app.text.lines().map(|s| {Spans::from(s)}).collect::<Vec<Spans>>();
+    let text = app.text.lines().skip(app.row_top).take(10).map(|s| {Spans::from(s)}).collect::<Vec<Spans>>();
     let block = Block::default().borders(Borders::NONE).title(Span::styled(
         "Log",
         Style::default()
@@ -99,8 +99,43 @@ where
     */
 }
 
+fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let text = app.text.lines().skip(app.row_top).take(10).map(|s| {Spans::from(s)}).collect::<Vec<Spans>>();
+    let block = Block::default().borders(Borders::NONE).title(Span::styled(
+        "Output",
+        Style::default()
+            .fg(Color::Magenta)
+            .add_modifier(Modifier::BOLD),
+    ));
+    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    f.render_widget(paragraph, area);
+}
+
+fn draw_input<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let text = app.text.lines().skip(app.row_top).take(10).map(|s| {Spans::from(s)}).collect::<Vec<Spans>>();
+    let block = Block::default().borders(Borders::NONE).title(Span::styled(
+        "Input",
+        Style::default()
+            .fg(Color::Magenta)
+            .add_modifier(Modifier::BOLD),
+    ));
+    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    f.render_widget(paragraph, area);
+}
+
 fn draw_second_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
+    let chunks = Layout::default()
+        .constraints([Constraint::Length(2), Constraint::Min(10)].as_ref())
+        .split(area);
+    draw_output(f, app, chunks[0]);
+    draw_input(f, app, chunks[1]);
 }

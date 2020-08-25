@@ -93,13 +93,13 @@ pub struct App<'a> {
     pub should_quit: bool,
     pub tabs: TabsState<'a>,
     pub text: String,
+    pub text_line_count: usize,
     pub show_chart: bool,
     pub progress: f64,
     pub tasks: StatefulList<&'a str>,
     pub logs: StatefulList<(&'a str, &'a str)>,
-    //pub signals: Signals,
-    //pub servers: Vec<Server<'a>>,
     pub enhanced_graphics: bool,
+    pub row_top: usize,
 }
 
 impl<'a> App<'a> {
@@ -107,30 +107,57 @@ impl<'a> App<'a> {
         App {
             title,
             should_quit: false,
-            tabs: TabsState::new(vec!["Tab0", "Tab1"]),
+            tabs: TabsState::new(vec!["Editor", "Terminal"]),
             text: String::new(),
+            text_line_count: 0,
             show_chart: true,
             progress: 0.0,
             tasks: StatefulList::with_items(TASKS.to_vec()),
             logs: StatefulList::with_items(LOGS.to_vec()),
             enhanced_graphics,
+            row_top: 0,
         }
     }
 
     pub fn on_open_file(&mut self) {
         self.text = std::fs::read_to_string("src/app.rs").expect("read file");
+        self.text_line_count = self.text.lines().count();
+    }
+
+    pub fn on_page_up(&mut self) {
+        if self.row_top > 0 {
+            self.row_top -= 1;
+        }
+    }
+
+    pub fn on_page_down(&mut self) {
+        if self.row_top < self.text_line_count {
+            self.row_top += 1;
+        }
     }
 
     pub fn on_up(&mut self) {
-        self.tasks.previous();
+        if self.row_top > 0 {
+            self.row_top -= 1;
+        }
     }
 
     pub fn on_down(&mut self) {
-        self.tasks.next();
+        if self.row_top < self.text_line_count {
+            self.row_top += 1;
+        }
     }
 
     pub fn on_right(&mut self) {
         self.tabs.next();
+    }
+
+    pub fn on_select_editor_tab(&mut self) {
+        self.tabs.index = 0;
+    }
+
+    pub fn on_select_terminal_tab(&mut self) {
+        self.tabs.index = 1;
     }
 
     pub fn on_left(&mut self) {

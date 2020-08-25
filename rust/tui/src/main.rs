@@ -64,6 +64,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         code: KeyCode::Char('q'), modifiers: event::KeyModifiers::CONTROL};
     const KEY_DOWN : event::KeyEvent = event::KeyEvent {
         code: KeyCode::Down, modifiers: event::KeyModifiers::NONE};
+    const KEY_F2 : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::F(2), modifiers: event::KeyModifiers::NONE};
+    const KEY_F3 : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::F(3), modifiers: event::KeyModifiers::NONE};
+    const KEY_PAGE_DOWN : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::PageDown, modifiers: event::KeyModifiers::NONE};
+    const KEY_PAGE_UP : event::KeyEvent = event::KeyEvent {
+        code: KeyCode::PageUp, modifiers: event::KeyModifiers::NONE};
     const KEY_UP : event::KeyEvent = event::KeyEvent {
         code: KeyCode::Up, modifiers: event::KeyModifiers::NONE};
 
@@ -83,6 +91,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     break;
                 }
                 KEY_DOWN => app.on_down(),
+                KEY_F2 => app.on_select_editor_tab(),
+                KEY_F3 => app.on_select_terminal_tab(),
+                KEY_PAGE_DOWN => app.on_page_down(),
+                KEY_PAGE_UP => app.on_page_up(),
                 KEY_UP => app.on_up(),
                 _ => {}
             },
@@ -90,34 +102,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 app.on_tick();
             }
         }
-            /*
-            Event::Input(event) => match event.code {
-                KeyCode::Char('q') => {
-                    let mods = event.modifiers;
-                    if mods == event::KeyModifiers::CONTROL {
-                    //if mods.contains(event::KeyModifiers::CONTROL) {
-                        disable_raw_mode()?;
-                        execute!(
-                            terminal.backend_mut(),
-                            LeaveAlternateScreen,
-                            DisableMouseCapture
-                        )?;
-                        terminal.show_cursor()?;
-                        break;
-                    }
-                }
-                KeyCode::Char(c) => app.on_key(c),
-                KeyCode::Left => app.on_left(),
-                KeyCode::Up => app.on_up(),
-                KeyCode::Right => app.on_right(),
-                KeyCode::Down => app.on_down(),
-                _ => {}
-            },
-            Event::Tick => {
-                app.on_tick();
-            }
-        }
-        */
         if app.should_quit {
             break;
         }
