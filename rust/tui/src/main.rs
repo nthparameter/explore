@@ -1,7 +1,9 @@
 mod app;
 mod ui;
 mod util;
+mod proc;
 use crate::app::App;
+//use crate::proc;
 //use crate::ui;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode},
@@ -10,7 +12,7 @@ use crossterm::{
 };
 
 use std::{
-    error::Error,
+    error::Error as ErrorTrait,
     io::{stdout, Write},
     sync::mpsc,
     thread,
@@ -23,9 +25,57 @@ enum Event<I> {
     Tick,
 }
 
+//use std::process::{Command, Stdio};
+//use std::io::{BufRead, BufReader, Error, ErrorKind, Read};
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn ErrorTrait>> {
+    //proc::test_subprocesses();
+    futures::executor::block_on(proc::test_async_subprocesses());
+
+    /*
     println!("Hello, world!");
+    let (tx, rx)  = std::sync::mpsc::channel();
+    let tx2 = tx.clone();
+    {
+    let stdout = Command::new("repeat.exe")
+        .stdout(Stdio::piped())
+        .spawn()?
+        .stdout
+        .ok_or_else(|| Error::new(ErrorKind::Other, "bytes"))?;
+    std::thread::spawn(move || {
+        stdout.bytes()
+            .filter_map(|b| b.ok())
+            .for_each(|b| {tx.send(String::from_utf8(vec![b]).unwrap());});
+    });
+    }
+    println!("Hello, world!");
+    {
+    let stdout = Command::new("repeat.exe")
+        .stdout(Stdio::piped())
+        .spawn()?
+        .stdout
+        .ok_or_else(|| Error::new(ErrorKind::Other, "lines"))?;
+    let reader = BufReader::new(stdout);
+    std::thread::spawn(move || {
+    reader
+        .lines()
+        .filter_map(|line| line.ok())
+        //.filter(|line| line.find("<").is_some())
+        //.for_each(|line| println!("{}", line));
+        .for_each(|line| {tx2.send(line);});
+    });
+    }
+    let mut count = 0;
+    while count < 40 {
+        println!("{:?}", rx.recv().unwrap());
+        std::thread::sleep(std::time::Duration::from_millis(250));
+        count += 1;
+    }
+    */
+    Ok(())
+}
+
+fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
     enable_raw_mode()?;
     let mut stdout = stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
