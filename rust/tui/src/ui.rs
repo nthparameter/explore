@@ -16,7 +16,14 @@ use tui::{
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // Main screen areas.
     let chunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(0), Constraint::Length(3)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(0),
+                Constraint::Length(3),
+            ]
+            .as_ref(),
+        )
         .split(f.size());
     // Create tabs (labels for tabs).
     let tab_titles = app
@@ -66,8 +73,13 @@ where
     B: Backend,
 {
     let text = app
-        .buffer.text.lines().skip(app.scroll_top).take(10)
-        .map(|s| {Spans::from(s)}).collect::<Vec<Spans>>();
+        .buffer
+        .text
+        .lines()
+        .skip(app.scroll_top)
+        .take(10)
+        .map(|s| Spans::from(s))
+        .collect::<Vec<Spans>>();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &app.buffer.name,
         Style::default()
@@ -111,11 +123,13 @@ fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let text = app.buffer
-        .text.lines()
+    let text = app
+        .buffer
+        .text
+        .lines()
         .skip(app.scroll_top)
         .take(10)
-        .map(|s| {Spans::from(s)})
+        .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
     let block = Block::default().borders(Borders::NONE).title(Span::styled(
         "Output",
@@ -131,8 +145,14 @@ fn draw_input<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let text = app.buffer.text.lines().skip(app.scroll_top).take(10)
-       .map(|s| {Spans::from(s)}).collect::<Vec<Spans>>();
+    let text = app
+        .buffer
+        .text
+        .lines()
+        .skip(app.scroll_top)
+        .take(10)
+        .map(|s| Spans::from(s))
+        .collect::<Vec<Spans>>();
     let block = Block::default().borders(Borders::NONE).title(Span::styled(
         "Input",
         Style::default()

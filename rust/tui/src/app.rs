@@ -1,4 +1,3 @@
-
 use crate::buffer;
 use crate::util::{RandomSignal, SinSignal, StatefulList, TabsState};
 use crossterm::{
@@ -73,7 +72,9 @@ impl<'a> App<'a> {
     }
 
     pub fn on_open_file(&mut self) {
-        self.buffer.load(std::path::Path::new("src/app.rs")).expect("read file");
+        self.buffer
+            .load(std::path::Path::new("src/app.rs"))
+            .expect("read file");
         //self.text = std::fs::read_to_string("src/app.rs").expect("read file");
         //self.text_line_count = self.text.lines().count();
     }
@@ -117,19 +118,19 @@ impl<'a> App<'a> {
     pub fn on_left(&mut self) {
         self.tabs.previous();
     }
-/*
-    pub fn on_key(&mut self, c: char) {
-        match c {
-            'q' => {
-                self.should_quit = true;
+    /*
+        pub fn on_key(&mut self, c: char) {
+            match c {
+                'q' => {
+                    self.should_quit = true;
+                }
+                't' => {
+                    self.show_chart = !self.show_chart;
+                }
+                _ => {}
             }
-            't' => {
-                self.show_chart = !self.show_chart;
-            }
-            _ => {}
         }
-    }
-*/
+    */
     pub fn on_tick(&mut self) {
         // Update progress
         self.progress += 0.001;

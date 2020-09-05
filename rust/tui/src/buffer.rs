@@ -1,5 +1,3 @@
-
-
 pub struct Buffer {
     pub name: String,
     pub file_path: String,
