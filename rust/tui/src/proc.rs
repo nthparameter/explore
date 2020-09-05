@@ -4,6 +4,13 @@ use std::future;
 use std::io::{BufRead, Read};
 use std::process::Stdio;
 
+#[cfg(target_os = "macos")]
+static EXE_TO_RUN: &str = "./repeat";
+#[cfg(target_os = "linux")]
+static EXE_TO_RUN: &str = "./repeat";
+#[cfg(target_os = "windows")]
+static EXE_TO_RUN: &str = "repeat.exe";
+
 pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
     let (tx, rx) = std::sync::mpsc::channel();
     let tx2 = tx.clone();
@@ -15,7 +22,7 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
         //let child1 = std::process::Command::new("./repeat").output().expect("ttttttttrrr");
         //println!("{}", String::from_utf8(child1.stdout).unwrap());
         //return Ok(());
-        let child = std::process::Command::new("./repeat")
+        let child = std::process::Command::new(EXE_TO_RUN)
             .stdout(Stdio::piped())
             .spawn()
             .expect("repeat");
