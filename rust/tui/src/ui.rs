@@ -63,7 +63,7 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let text = vec![Spans::from(format!("{}", app.progress))];
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: true });
     f.render_widget(paragraph, chunks[0]);
     f.set_cursor(app.pen_col as u16, app.pen_row as u16);
 }
@@ -77,16 +77,17 @@ where
         .text
         .lines()
         .skip(app.scroll_top)
-        .take(10)
+        .take(area.height as usize)
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
+    //for s in &text { println!("<{:?}", s); }
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &app.buffer.name,
         Style::default()
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
     /*
     let text = vec![
@@ -137,7 +138,7 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
 }
 
@@ -159,7 +160,7 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
 }
 
@@ -181,16 +182,16 @@ where
     let chunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
         .split(area);
-    let text = vec![
-        Spans::from(format!("pen r:{} c:{}", app.pen_row, app.pen_col)),
-        Spans::from(format!("in:{:?}", app.debug_event)),
-    ];
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         "Debug",
         Style::default()
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    let text = vec![
+        Spans::from(format!("pen r:{} c:{}", app.pen_row, app.pen_col)),
+        Spans::from(format!("in:{:?}", app.debug_event)),
+    ];
+    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
 }
