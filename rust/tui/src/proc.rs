@@ -11,13 +11,19 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
     let tx2 = tx.clone();
     let tx3 = tx.clone();
 
-    println!("Start bytes thread");
+    println!("Start bytes thread a");
+    println!("{}", std::path::Path::new("repeat").exists());
     {
-        let stdout = std::process::Command::new("repeat.exe")
+        //let child1 = std::process::Command::new("./repeat").output().expect("ttttttttrrr");
+        //println!("{}", String::from_utf8(child1.stdout).unwrap());
+        //return Ok(());
+        let child = std::process::Command::new("./repeat")
             .stdout(Stdio::piped())
-            .spawn()?
-            .stdout
-            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "bytes"))?;
+            .spawn().expect("repeat");
+        let stdout = child.stdout
+            //.ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "bytes"))?;
+            .expect("aaaaaaaa");
+    println!("Start bytes threadbbbbbbbbbb");
         std::thread::spawn(move || {
             stdout.bytes()
                 .filter_map(|b| b.ok())
@@ -27,7 +33,7 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Start lines thread!");
     {
-        let stdout = std::process::Command::new("repeat.exe")
+        let stdout = std::process::Command::new("./repeat")
             .stdout(Stdio::piped())
             .spawn()?
             .stdout
