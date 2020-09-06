@@ -2,15 +2,17 @@
 
 mod app;
 mod buffer;
+mod key_const;
 mod proc;
 mod ui;
 mod util;
 use crate::app::App;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use key_const::*;
 
 use std::{
     error::Error as ErrorTrait,
@@ -66,55 +68,6 @@ fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
     });
 
     terminal.clear()?;
-
-    const CTRL_DOWN: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Down,
-        modifiers: event::KeyModifiers::CONTROL,
-    };
-    const CTRL_O: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Char('o'),
-        modifiers: event::KeyModifiers::CONTROL,
-    };
-    const CTRL_Q: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Char('q'),
-        modifiers: event::KeyModifiers::CONTROL,
-    };
-    const CTRL_UP: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Up,
-        modifiers: event::KeyModifiers::CONTROL,
-    };
-    const KEY_DOWN: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Down,
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_F2: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::F(2),
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_F3: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::F(3),
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_LEFT: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Left,
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_PAGE_DOWN: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::PageDown,
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_PAGE_UP: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::PageUp,
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_RIGHT: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Right,
-        modifiers: event::KeyModifiers::NONE,
-    };
-    const KEY_UP: event::KeyEvent = event::KeyEvent {
-        code: KeyCode::Up,
-        modifiers: event::KeyModifiers::NONE,
-    };
 
     loop {
         terminal.draw(|f| ui::draw(f, &mut app))?;

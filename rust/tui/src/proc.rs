@@ -17,15 +17,15 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
     let tx3 = tx.clone();
 
     println!("Start bytes thread a");
-    println!("{}", std::path::Path::new("repeat").exists());
+    println!("{}", std::path::Path::new(EXE_TO_RUN).exists());
     {
-        //let child1 = std::process::Command::new("./repeat").output().expect("ttttttttrrr");
+        //let child1 = std::process::Command::new(EXE_TO_RUN).output().expect("ttttttttrrr");
         //println!("{}", String::from_utf8(child1.stdout).unwrap());
         //return Ok(());
         let child = std::process::Command::new(EXE_TO_RUN)
             .stdout(Stdio::piped())
             .spawn()
-            .expect("repeat");
+            .expect("spawn process");
         let stdout = child
             .stdout
             //.ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "bytes"))?;
@@ -40,7 +40,7 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Start lines thread!");
     {
-        let stdout = std::process::Command::new("./repeat")
+        let stdout = std::process::Command::new(EXE_TO_RUN)
             .stdout(Stdio::piped())
             .spawn()?
             .stdout
@@ -69,7 +69,7 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
 
 pub async fn test_async_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
     println!("Create buf reader future");
-    let stdout = std::process::Command::new("repeat.exe")
+    let stdout = std::process::Command::new(EXE_TO_RUN)
         .stdout(Stdio::piped())
         .spawn()?
         .stdout
@@ -81,7 +81,7 @@ pub async fn test_async_subprocesses() -> Result<(), Box<dyn std::error::Error>>
     });
 
     println!("Create buf reader future2");
-    let stdout2 = std::process::Command::new("repeat.exe")
+    let stdout2 = std::process::Command::new(EXE_TO_RUN)
         .stdout(Stdio::piped())
         .spawn()?
         .stdout
