@@ -65,13 +65,19 @@ where
     let text = vec![Spans::from(format!("{}", app.progress))];
     let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: true });
     f.render_widget(paragraph, chunks[0]);
-    f.set_cursor(app.pen_col as u16, app.pen_row as u16);
+    //f.set_cursor(app.pen_col as u16, app.pen_row as u16);
 }
 
 fn draw_text<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
+    let block = Block::default().borders(Borders::TOP).title(Span::styled(
+        &app.buffer.name,
+        Style::default()
+            .fg(Color::Magenta)
+            .add_modifier(Modifier::BOLD),
+    ));
     let text = app
         .buffer
         .text
@@ -81,14 +87,13 @@ where
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
     //for s in &text { println!("<{:?}", s); }
-    let block = Block::default().borders(Borders::TOP).title(Span::styled(
-        &app.buffer.name,
-        Style::default()
-            .fg(Color::Magenta)
-            .add_modifier(Modifier::BOLD),
-    ));
     let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
+    if app.scroll_top <= app.pen_row {
+        f.set_cursor(
+            area.x + (app.pen_col - app.scroll_left) as u16,
+            1 + area.y + (app.pen_row - app.scroll_top) as u16);
+    }
     /*
     let text = vec![
         Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),

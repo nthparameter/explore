@@ -59,10 +59,6 @@ fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
                 last_tick = Instant::now();
             } else if event::poll(tick_rate - elapsed).unwrap() {
                 tx.send(Event::Input(event::read().unwrap()));
-                //let current_event = event::read().unwrap();
-                //if let CEvent::Key(key) = current_event {
-                //    tx.send(Event::Input(key)).unwrap();
-                //}
             }
         }
     });
