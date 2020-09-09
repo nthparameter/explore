@@ -1,11 +1,9 @@
 use crate::app::App;
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Layout, Rect},
     style::{Color, Modifier, Style},
-    symbols,
     text::{Span, Spans},
-    widgets::canvas::{Canvas, Line, Map, MapResolution, Rectangle},
     widgets::{
         Axis, BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Row,
         Sparkline, Table, Tabs, Wrap,
@@ -82,14 +80,14 @@ where
         .buffer
         .text
         .lines()
-        .skip(app.scroll_top)
+        .skip(app.text_window.scroll_top)
         .take(area.height as usize)
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
     //for s in &text { println!("<{:?}", s); }
     let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
-    if app.scroll_top <= app.pen_row {
+    if app.text_window.scroll_top <= app.pen_row {
         f.set_cursor(
             area.x + (app.pen_col - app.scroll_left) as u16,
             1 + area.y + (app.pen_row - app.scroll_top) as u16);
@@ -155,7 +153,7 @@ where
         .buffer
         .text
         .lines()
-        .skip(app.scroll_top)
+        .skip(app.text_window.scroll_top)
         .take(10)
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
@@ -193,8 +191,9 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
+    let tb = &app.text_window.text_buffer;
     let text = vec![
-        Spans::from(format!("pen r:{} c:{}", app.pen_row, app.pen_col)),
+        Spans::from(format!("pen r:{} c:{}", tb.pen_row, tb.pen_col)),
         Spans::from(format!("in:{:?}", app.debug_event)),
     ];
     let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });

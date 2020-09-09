@@ -1,14 +1,16 @@
 #![deny(unreachable_patterns)]
 
 mod app;
-mod buffer;
 mod key_const;
 mod proc;
+mod text_buffer;
+mod text_window;
 mod ui;
 mod util;
+mod window;
 use crate::app::App;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent},
+    event::{self, DisableMouseCapture, EnableMouseCapture},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -65,36 +67,22 @@ fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
 
     terminal.clear()?;
 
+    // Handle events until `app.should_quit`.
     loop {
         terminal.draw(|f| ui::draw(f, &mut app))?;
         match rx.recv()? {
             Event::Input(event) => {
                 app.debug_event = event;
-                if let crossterm::event::Event::Key(key_event) = event {
-                    match key_event {
-                        CTRL_DOWN => app.on_scroll_down(),
-                        CTRL_O => app.on_open_file(),
-                        CTRL_Q => {
-                            disable_raw_mode()?;
-                            execute!(
-                                terminal.backend_mut(),
-                                LeaveAlternateScreen,
-                                DisableMouseCapture
-                            )?;
-                            terminal.show_cursor()?;
-                            break;
-                        }
-                        CTRL_UP => app.on_scroll_up(),
-                        KEY_DOWN => app.on_cursor_down(),
-                        KEY_LEFT => app.on_cursor_left(),
-                        KEY_F2 => app.on_select_editor_tab(),
-                        KEY_F3 => app.on_select_terminal_tab(),
-                        KEY_PAGE_DOWN => app.on_page_down(),
-                        KEY_PAGE_UP => app.on_page_up(),
-                        KEY_RIGHT => app.on_cursor_right(),
-                        KEY_UP => app.on_cursor_up(),
-                        _ => {}
-                    }
+                app.handle_event(event);
+                if app.should_quit {
+                    disable_raw_mode()?;
+                    execute!(
+                        terminal.backend_mut(),
+                        LeaveAlternateScreen,
+                        DisableMouseCapture
+                    )?;
+                    terminal.show_cursor()?;
+                    break;
                 }
             }
             Event::Tick => {
