@@ -1,6 +1,7 @@
 #![deny(unreachable_patterns)]
 
 mod app;
+mod buffer_manager;
 mod key_const;
 mod proc;
 mod text_buffer;
@@ -8,7 +9,9 @@ mod text_window;
 mod ui;
 mod util;
 mod window;
+
 use crate::app::App;
+use crate::window::EventHandler;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -73,7 +76,7 @@ fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
         match rx.recv()? {
             Event::Input(event) => {
                 app.debug_event = event;
-                app.handle_event(event);
+                app.handle_event(&event);
                 if app.should_quit {
                     disable_raw_mode()?;
                     execute!(

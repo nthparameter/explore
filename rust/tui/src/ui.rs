@@ -70,14 +70,14 @@ fn draw_text<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
+    let tb = &app.text_window.text_buffer.lock().unwrap();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
-        &app.buffer.name,
+        &tb.name,
         Style::default()
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let text = app
-        .buffer
+    let text = tb
         .text
         .lines()
         .skip(app.text_window.scroll_top)
@@ -127,8 +127,10 @@ fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let text = app
-        .buffer
+    let tb = app
+        .text_window
+        .text_buffer.lock().unwrap();
+    let text = tb
         .text
         .lines()
         .skip(app.scroll_top)
@@ -149,8 +151,10 @@ fn draw_input<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let text = app
-        .buffer
+    let tb = app
+        .text_window
+        .text_buffer.lock().unwrap();
+    let text = tb
         .text
         .lines()
         .skip(app.text_window.scroll_top)
@@ -191,7 +195,7 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let tb = &app.text_window.text_buffer;
+    let tb = &app.text_window.text_buffer.lock().unwrap();
     let text = vec![
         Spans::from(format!("pen r:{} c:{}", tb.pen_row, tb.pen_col)),
         Spans::from(format!("in:{:?}", app.debug_event)),

@@ -1,3 +1,5 @@
+
+use crate::buffer_manager::BufferManager;
 use crate::text_window::TextWindow;
 use crate::util::{TabsState};
 use crate::window::EventHandler;
@@ -8,6 +10,7 @@ use crate::window::EventHandler;
 };*/
 
 pub struct App<'a> {
+    pub buffer_manager: BufferManager,
     pub title: &'a str,
     pub tabs: TabsState<'a>,
     pub progress: f64,
@@ -23,7 +26,11 @@ pub struct App<'a> {
 
 impl<'a> App<'a> {
     pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
+        let mut buffer_manager = BufferManager::new();
+        let mut text_window = TextWindow::new(
+                    buffer_manager.new_text_buffer());
         App {
+            buffer_manager,
             title,
             tabs: TabsState::new(vec!["Editor", "Terminal"]),
             progress: 0.0,
@@ -34,7 +41,7 @@ impl<'a> App<'a> {
             scroll_top: 0,
             debug_event: crossterm::event::Event::Resize(1, 1),
             should_quit: false,
-            text_window: TextWindow::new("<none>".to_string()),
+            text_window,
         }
     }
 /*
@@ -62,9 +69,10 @@ impl<'a> App<'a> {
         }
     }*/
     pub fn on_open_file(&mut self) {
-        self.text_window
-            .load(std::path::Path::new("src/app.rs"))
+        let tb = self.buffer_manager.load(std::path::Path::new("src/app.rs"))
             .expect("read file");
+        self.text_window
+            .set_text_buffer(tb);
         //self.text = std::fs::read_to_string("src/app.rs").expect("read file");
         //self.text_line_count = self.text.lines().count();
     }
@@ -119,7 +127,7 @@ impl<'a> App<'a> {
     }
 }
 
-impl<'a> EventHandler for App<'a> {
+impl<'a> EventHandler for App<'_> {
     fn handle_event(&mut self, event: &crossterm::event::Event) {
         /*if let crossterm::event::Event::Key(key_event) = event {
             match key_event {

@@ -3,7 +3,7 @@
 use crate::text_buffer::TextBuffer;
 use crate::window::EventHandler;
 use std::sync::{Arc, Mutex};
-
+/*
 #[derive(Debug, Clone)]
 pub struct TextWindowState {
     scroll_top: usize,
@@ -19,17 +19,23 @@ impl Default for TextWindowState {
             focused: false,
         }
     }
-}
+}*/
 
 pub struct TextWindow<'a> {
-    block: Option<tui::widgets::Block<'a>>,
-    text_buffer: Arc<Mutex<TextBuffer>>,
+    pub block: Option<tui::widgets::Block<'a>>,
+    pub focused: bool,
+    pub scroll_top: usize,
+    pub scroll_left: usize,
+    pub text_buffer: Arc<Mutex<TextBuffer>>,
 }
 
 impl<'a> TextWindow<'a> {
     pub fn new(text_buffer: Arc<Mutex<TextBuffer>>) -> Self {
         Self {
             block: None,
+            focused: false,
+            scroll_top: 0,
+            scroll_left: 0,
             text_buffer: text_buffer,
         }
     }
@@ -61,6 +67,10 @@ impl<'a> TextWindow<'a> {
         if self.scroll_top > 0 {
             self.scroll_top -= 1;
         }
+    }
+
+    pub fn set_text_buffer(&mut self, tb: Arc<Mutex<TextBuffer>>) {
+        self.text_buffer = tb;
     }
 }
 
