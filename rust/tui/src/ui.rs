@@ -81,8 +81,7 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let text = tb
-        .text
-        .lines()
+        .rows()
         .skip(tw.scroll_top)
         .take(area.height as usize)
         .map(|s| Spans::from(s))
@@ -134,8 +133,7 @@ where
         .text_window
         .text_buffer.lock().unwrap();
     let text = tb
-        .text
-        .lines()
+        .rows()
         .skip(app.scroll_top)
         .take(10)
         .map(|s| Spans::from(s))
@@ -158,8 +156,7 @@ where
         .text_window
         .text_buffer.lock().unwrap();
     let text = tb
-        .text
-        .lines()
+        .rows()
         .skip(app.text_window.scroll_top)
         .take(10)
         .map(|s| Spans::from(s))
