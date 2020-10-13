@@ -1,7 +1,7 @@
 use crate::app::App;
 use tui::{
     backend::Backend,
-    layout::{Constraint, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{
@@ -52,7 +52,12 @@ where
     let chunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
         .split(area);
-    draw_text(f, app, chunks[1]);
+    let h_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Length(7), Constraint::Min(0)].as_ref())
+        .split(chunks[1]);
+    draw_line_numbers(f, app, h_chunks[0]);
+    draw_text(f, app, h_chunks[1]);
 
     let block = Block::default().borders(Borders::NONE).title(Span::styled(
         "Animals",
@@ -123,6 +128,30 @@ where
     let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
     f.render_widget(paragraph, area);
     */
+}
+
+fn draw_line_numbers<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let tw = &mut app.text_window;
+    tw.render_width = area.width as usize;
+    tw.render_height = area.height as usize;
+    let tb = &tw.text_buffer.lock().unwrap();
+    let block = Block::default().borders(Borders::TOP).title(Span::styled(
+        &tb.name,
+        Style::default()
+            .fg(Color::Magenta)
+            .add_modifier(Modifier::BOLD),
+    ));
+    let text = tb
+        .line_numbers()
+        .skip(tw.scroll_top)
+        .take(area.height as usize)
+        .map(|s| Spans::from(s))
+        .collect::<Vec<Spans>>();
+    let paragraph = Paragraph::new(text).block(block);
+    f.render_widget(paragraph, area);
 }
 
 fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)

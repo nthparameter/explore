@@ -6,10 +6,15 @@ use std::iter;
 
 pub struct TextBuffer {
     pub file_path: std::path::PathBuf,
+    // Each entry in lines is an index into `rows` for the first row of the
+    // line.
+    lines: Vec<usize>,
     pub name: String,
     pub pen_col: usize,
     pub pen_row: usize,
+    // Each entry in rows is an offset to a character in `text`.
     rows: Vec<usize>,
+    row_to_line: Vec<usize>,
     text: String,
     pub text_line_count: usize,
 }
@@ -21,10 +26,12 @@ impl TextBuffer {
         let text_line_count = data.lines().count();
         let mut tb = Self {
             file_path: file_path.to_path_buf(),
+            lines: vec![],
             name: file_path.display().to_string(),
             pen_col: 0,
             pen_row: 0,
             rows: vec![],
+            row_to_line: vec![],
             text: data,
             text_line_count,
         };
@@ -66,21 +73,33 @@ impl TextBuffer {
     fn parse_text(&mut self) {
         let mut line_start = 0;
         let mut row_len = 0;
-        self.rows.push(line_start);
+        self.lines = vec![0];
+        self.rows = vec![line_start];
+        self.row_to_line = vec![0];
         for (i,c) in self.text.chars().enumerate() {
             if c == '\n' {
+                self.lines.push(self.rows.len());
+                self.row_to_line.push(self.lines.len());
                 self.rows.push(line_start);
                 line_start = i + 1;
                 row_len = 0;
             } else {
                 row_len += 1;
                 if row_len > 40 {
+                    self.row_to_line.push(self.lines.len());
                     self.rows.push(line_start);
                     line_start = i;
                     row_len = 0;
                 }
             }
         }
+        self.text_line_count = self.rows.len();
+        // Push one extra entry to represent the last piece of text.
+        self.rows.push(self.text.len());
+    }
+
+    pub fn line_numbers(&self) -> impl Iterator<Item = &str> {
+        self.into_iter()
     }
 
     pub fn rows(&self) -> impl Iterator<Item = &str> {
@@ -119,17 +138,11 @@ impl<'a> IntoIterator for &'a TextBuffer {
     }
 }
 
-
 impl<'a> Iterator for TextBufferIterator<'a> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<&'a str> {
         self.index += 1;
         self.tb.get_row(self.index)
-        /*
-        if self.index >= self.tb.text_line_count {
-            return None;
-        }
-        Some(self.tb.get_row(self.index).unwrap())*/
     }
 }
