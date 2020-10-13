@@ -51,7 +51,7 @@ fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
     // Set up input handling
     let (tx, rx) = mpsc::channel();
 
-    let mut app = App::new("Crossterm Demo", true);
+    let mut app = App::new("Editor", true);
 
     let tick_rate = Duration::from_millis(200);
     thread::spawn(move || {

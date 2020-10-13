@@ -70,7 +70,10 @@ fn draw_text<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tb = &app.text_window.text_buffer.lock().unwrap();
+    let tw = &mut app.text_window;
+    tw.render_width = area.width as usize;
+    tw.render_height = area.height as usize;
+    let tb = &tw.text_buffer.lock().unwrap();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &tb.name,
         Style::default()
@@ -80,14 +83,14 @@ where
     let text = tb
         .text
         .lines()
-        .skip(app.text_window.scroll_top)
+        .skip(tw.scroll_top)
         .take(area.height as usize)
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
     //for s in &text { println!("<{:?}", s); }
     let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
-    if app.text_window.scroll_top <= app.pen_row {
+    if tw.scroll_top <= app.pen_row {
         f.set_cursor(
             area.x + (app.pen_col - app.scroll_left) as u16,
             1 + area.y + (app.pen_row - app.scroll_top) as u16);

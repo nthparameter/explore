@@ -13,15 +13,6 @@ pub struct TextBuffer {
 }
 
 impl TextBuffer {
-    /*
-    pub fn newasdf(name: String) -> Self {
-        Self {
-            name: name,
-            file_path: std::path::PathBuf::new(),
-            text: "".to_string(),
-            text_line_count: 0,
-        }
-    }*/
 
     pub fn new(file_path: &std::path::Path, data: String) -> Self {
         let text_line_count = data.lines().count();
@@ -63,11 +54,11 @@ impl TextBuffer {
 impl<'a> EventHandler for TextBuffer {
     fn handle_event(&mut self, event: &crossterm::event::Event) {
         if let crossterm::event::Event::Key(key_event) = event {
-            match key_event {
-                //KEY_DOWN => self.on_cursor_down(),
-                //KEY_LEFT => self.on_cursor_left(),
-                //KEY_RIGHT => self.on_cursor_right(),
-                //KEY_UP => self.on_cursor_up(),
+            match *key_event {
+                KEY_DOWN => self.on_cursor_down(),
+                KEY_LEFT => self.on_cursor_left(),
+                KEY_RIGHT => self.on_cursor_right(),
+                KEY_UP => self.on_cursor_up(),
                 _ => {},
             }
         }

@@ -1,5 +1,6 @@
 
 use crate::buffer_manager::BufferManager;
+use crate::key_const::*;
 use crate::text_window::TextWindow;
 use crate::util::{TabsState};
 use crate::window::EventHandler;
@@ -29,6 +30,7 @@ impl<'a> App<'a> {
         let mut buffer_manager = BufferManager::new();
         let mut text_window = TextWindow::new(
                     buffer_manager.new_text_buffer());
+
         App {
             buffer_manager,
             title,
@@ -129,14 +131,15 @@ impl<'a> App<'a> {
 
 impl<'a> EventHandler for App<'_> {
     fn handle_event(&mut self, event: &crossterm::event::Event) {
-        /*if let crossterm::event::Event::Key(key_event) = event {
-            match key_event {
+        if let crossterm::event::Event::Key(key_event) = event {
+            match *key_event {
                 CTRL_O => self.on_open_file(),
                 CTRL_Q => self.should_quit = true,
                 KEY_F2 => self.on_select_editor_tab(),
                 KEY_F3 => self.on_select_terminal_tab(),
                 _ => self.text_window.handle_event(event),
             }
-        }*/
+        }
     }
 }
+
