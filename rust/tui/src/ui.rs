@@ -76,8 +76,6 @@ where
     B: Backend,
 {
     let tw = &mut app.text_window;
-    tw.render_width = area.width as usize;
-    tw.render_height = area.height as usize;
     let tb = &tw.text_buffer.lock().unwrap();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &tb.name,
@@ -85,6 +83,9 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
+    let inner_area = block.inner(area);
+    tw.render_width = inner_area.width as usize;
+    tw.render_height = inner_area.height as usize;
     let text = tb
         .rows()
         .skip(tw.scroll_top)
@@ -148,7 +149,8 @@ where
         .line_numbers()
         .skip(tw.scroll_top)
         .take(area.height as usize)
-        .map(|s| Spans::from(s))
+        .map(|s| if s == 0 { Spans::from("")} else {
+            Spans::from(s.to_string())})
         .collect::<Vec<Spans>>();
     let paragraph = Paragraph::new(text).block(block);
     f.render_widget(paragraph, area);

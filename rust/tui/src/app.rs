@@ -142,4 +142,3 @@ impl<'a> EventHandler for App<'_> {
         }
     }
 }
-

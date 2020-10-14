@@ -20,7 +20,7 @@ pub struct TextBuffer {
 }
 
 
-impl TextBuffer {
+impl<'a> TextBuffer {
 
     pub fn new(file_path: &std::path::Path, data: String) -> Self {
         let text_line_count = data.lines().count();
@@ -71,11 +71,12 @@ impl TextBuffer {
     }
 
     fn parse_text(&mut self) {
+        //let mut line_number = 1;
         let mut line_start = 0;
         let mut row_len = 0;
         self.lines = vec![0];
         self.rows = vec![line_start];
-        self.row_to_line = vec![0];
+        self.row_to_line = vec![1];
         for (i,c) in self.text.chars().enumerate() {
             if c == '\n' {
                 self.lines.push(self.rows.len());
@@ -86,7 +87,8 @@ impl TextBuffer {
             } else {
                 row_len += 1;
                 if row_len > 40 {
-                    self.row_to_line.push(self.lines.len());
+                    // The 0 is a placeholder for line continuation.
+                    self.row_to_line.push(0);
                     self.rows.push(line_start);
                     line_start = i;
                     row_len = 0;
@@ -98,8 +100,8 @@ impl TextBuffer {
         self.rows.push(self.text.len());
     }
 
-    pub fn line_numbers(&self) -> impl Iterator<Item = &str> {
-        self.into_iter()
+    pub fn line_numbers(&'a self) -> impl Iterator<Item = usize> + 'a {
+        self.row_to_line.iter().cloned()//.into_iter()
     }
 
     pub fn rows(&self) -> impl Iterator<Item = &str> {
