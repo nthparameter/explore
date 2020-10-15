@@ -1,5 +1,3 @@
-
-
 use crate::key_const::*;
 use crate::window::EventHandler;
 use std::iter;
@@ -20,9 +18,7 @@ pub struct TextBuffer {
     pub text_row_count: usize,
 }
 
-
 impl<'a> TextBuffer {
-
     pub fn new(file_path: &std::path::Path, data: String) -> Self {
         let text_row_count = data.lines().count();
         let mut tb = Self {
@@ -44,7 +40,7 @@ impl<'a> TextBuffer {
         if row >= self.text_row_count {
             return None;
         }
-        Some(&self.text[self.rows[row]..self.rows[row+1]])
+        Some(&self.text[self.rows[row]..self.rows[row + 1]])
     }
 
     pub fn on_cursor_down(&mut self) {
@@ -78,7 +74,7 @@ impl<'a> TextBuffer {
         self.lines = vec![];
         self.rows = vec![];
         self.row_to_line = vec![];
-        for (i,c) in self.text.chars().enumerate() {
+        for (i, c) in self.text.chars().enumerate() {
             if c == '\n' {
                 self.lines.push(self.rows.len());
                 self.row_to_line.push(self.lines.len());
@@ -102,7 +98,7 @@ impl<'a> TextBuffer {
     }
 
     pub fn line_numbers(&'a self) -> impl Iterator<Item = usize> + 'a {
-        self.row_to_line.iter().cloned()//.into_iter()
+        self.row_to_line.iter().cloned() //.into_iter()
     }
 
     pub fn rows(&self) -> impl Iterator<Item = &str> {
@@ -118,7 +114,7 @@ impl<'a> EventHandler for TextBuffer {
                 KEY_LEFT => self.on_cursor_left(),
                 KEY_RIGHT => self.on_cursor_right(),
                 KEY_UP => self.on_cursor_up(),
-                _ => {},
+                _ => {}
             }
         }
     }
@@ -134,10 +130,7 @@ impl<'a> IntoIterator for &'a TextBuffer {
     type IntoIter = TextBufferIterator<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        TextBufferIterator {
-            tb: self,
-            index: 0,
-        }
+        TextBufferIterator { tb: self, index: 0 }
     }
 }
 
@@ -198,7 +191,10 @@ mod tests {
         assert_eq!(tb.text_row_count, 4);
 
         assert_eq!(tb.get_row(0), Some("\n"));
-        assert_eq!(tb.get_row(1), Some("use crate::buffer_manager::BufferManager"));
+        assert_eq!(
+            tb.get_row(1),
+            Some("use crate::buffer_manager::BufferManager")
+        );
         assert_eq!(tb.get_row(2), Some(";\n"));
         assert_eq!(tb.get_row(3), Some("mellon\n"));
         assert_eq!(tb.get_row(4), None);

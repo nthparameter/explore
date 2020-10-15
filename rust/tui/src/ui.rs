@@ -66,7 +66,7 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let text = vec![Spans::from(format!("{}", app.progress))];
-    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: true });
+    let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: true });
     f.render_widget(paragraph, chunks[0]);
     //f.set_cursor(app.pen_col as u16, app.pen_row as u16);
 }
@@ -93,15 +93,19 @@ where
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
     //for s in &text { println!("<{:?}", s); }
-    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
+    let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
     let height = inner_area.height as usize;
     let width = inner_area.width as usize;
-    if tw.scroll_top <= tb.pen_row && tw.scroll_top + height > tb.pen_row &&
-       tw.scroll_left <= tb.pen_col && tw.scroll_left + width > tb.pen_col {
+    if tw.scroll_top <= tb.pen_row
+        && tw.scroll_top + height > tb.pen_row
+        && tw.scroll_left <= tb.pen_col
+        && tw.scroll_left + width > tb.pen_col
+    {
         f.set_cursor(
             inner_area.x + (tb.pen_col - tw.scroll_left) as u16,
-            inner_area.y + (tb.pen_row - tw.scroll_top) as u16);
+            inner_area.y + (tb.pen_row - tw.scroll_top) as u16,
+        );
     }
     /*
     let text = vec![
@@ -152,8 +156,13 @@ where
         .line_numbers()
         .skip(tw.scroll_top)
         .take(area.height as usize)
-        .map(|s| if s == 0 { Spans::from("")} else {
-            Spans::from(s.to_string())})
+        .map(|s| {
+            if s == 0 {
+                Spans::from("")
+            } else {
+                Spans::from(s.to_string())
+            }
+        })
         .collect::<Vec<Spans>>();
     let paragraph = Paragraph::new(text).block(block);
     f.render_widget(paragraph, area);
@@ -163,10 +172,8 @@ fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tw = &app
-        .text_window;
-    let tb = tw
-        .text_buffer.lock().unwrap();
+    let tw = &app.text_window;
+    let tb = tw.text_buffer.lock().unwrap();
     let text = tb
         .rows()
         .skip(tw.scroll_top)
@@ -187,9 +194,7 @@ fn draw_input<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tb = app
-        .text_window
-        .text_buffer.lock().unwrap();
+    let tb = app.text_window.text_buffer.lock().unwrap();
     let text = tb
         .rows()
         .skip(app.text_window.scroll_top)
@@ -202,7 +207,7 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
+    let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
 }
 
@@ -237,6 +242,6 @@ where
         Spans::from(format!("pen r:{} c:{}", tb.pen_row, tb.pen_col)),
         Spans::from(format!("in:{:?}", app.debug_event)),
     ];
-    let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
+    let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
 }

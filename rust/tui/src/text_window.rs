@@ -1,4 +1,3 @@
-
 use crate::key_const::*;
 use crate::text_buffer::TextBuffer;
 use crate::window::EventHandler;
@@ -51,7 +50,7 @@ impl<'a> TextWindow<'a> {
 
     pub fn on_page_down(&mut self) {
         let row_count = self.text_buffer.lock().unwrap().text_row_count;
-        if row_count <= 2 * self.render_height + self.scroll_top  {
+        if row_count <= 2 * self.render_height + self.scroll_top {
             self.scroll_top = row_count - self.render_height;
         } else {
             self.scroll_top += self.render_height;

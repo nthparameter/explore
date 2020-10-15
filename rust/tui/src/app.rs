@@ -1,8 +1,7 @@
-
 use crate::buffer_manager::BufferManager;
 use crate::key_const::*;
 use crate::text_window::TextWindow;
-use crate::util::{TabsState};
+use crate::util::TabsState;
 use crate::window::EventHandler;
 /*use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode},
@@ -24,8 +23,7 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
         let mut buffer_manager = BufferManager::new();
-        let mut text_window = TextWindow::new(
-                    buffer_manager.new_text_buffer());
+        let mut text_window = TextWindow::new(buffer_manager.new_text_buffer());
 
         App {
             buffer_manager,
@@ -40,7 +38,9 @@ impl<'a> App<'a> {
     }
 
     pub fn on_open_file(&mut self) {
-        let tb = self.buffer_manager.load(std::path::Path::new("src/app.rs"))
+        let tb = self
+            .buffer_manager
+            .load(std::path::Path::new("src/app.rs"))
             .expect("read file");
         self.text_window.set_text_buffer(tb);
     }
