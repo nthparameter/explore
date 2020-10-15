@@ -47,7 +47,7 @@ impl<'a> TextBuffer {
     }
 
     pub fn on_cursor_down(&mut self) {
-        if self.pen_row < self.text_line_count {
+        if self.pen_row + 1 < self.text_line_count {
             self.pen_row += 1;
         }
     }
@@ -59,7 +59,8 @@ impl<'a> TextBuffer {
     }
 
     pub fn on_cursor_right(&mut self) {
-        if self.pen_col < 10 {
+        let row_limit = self.get_row(self.pen_row).unwrap().len();
+        if self.pen_col + 1 < row_limit {
             self.pen_col += 1;
         }
     }

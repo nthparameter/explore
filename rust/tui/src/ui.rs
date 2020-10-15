@@ -18,7 +18,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             [
                 Constraint::Length(3),
                 Constraint::Min(0),
-                Constraint::Length(3),
+                Constraint::Length(4),
             ]
             .as_ref(),
         )
@@ -95,10 +95,13 @@ where
     //for s in &text { println!("<{:?}", s); }
     let paragraph = Paragraph::new(text).block(block);//.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
-    if tw.scroll_top <= app.pen_row {
+    let height = inner_area.height as usize;
+    let width = inner_area.width as usize;
+    if tw.scroll_top <= tb.pen_row && tw.scroll_top + height > tb.pen_row &&
+       tw.scroll_left <= tb.pen_col && tw.scroll_left + width > tb.pen_col {
         f.set_cursor(
-            inner_area.x + (app.pen_col - app.scroll_left) as u16,
-            1 + inner_area.y + (app.pen_row - app.scroll_top) as u16);
+            inner_area.x + (tb.pen_col - tw.scroll_left) as u16,
+            inner_area.y + (tb.pen_row - tw.scroll_top) as u16);
     }
     /*
     let text = vec![
@@ -160,12 +163,13 @@ fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tb = app
-        .text_window
+    let tw = &app
+        .text_window;
+    let tb = tw
         .text_buffer.lock().unwrap();
     let text = tb
         .rows()
-        .skip(app.scroll_top)
+        .skip(tw.scroll_top)
         .take(10)
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
@@ -226,8 +230,10 @@ where
             .fg(Color::Magenta)
             .add_modifier(Modifier::BOLD),
     ));
-    let tb = &app.text_window.text_buffer.lock().unwrap();
+    let tw = &app.text_window;
+    let tb = &tw.text_buffer.lock().unwrap();
     let text = vec![
+        Spans::from(format!("scroll t:{} l:{}", tw.scroll_top, tw.scroll_left)),
         Spans::from(format!("pen r:{} c:{}", tb.pen_row, tb.pen_col)),
         Spans::from(format!("in:{:?}", app.debug_event)),
     ];
