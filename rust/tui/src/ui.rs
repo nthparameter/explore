@@ -97,8 +97,8 @@ where
     f.render_widget(paragraph, area);
     if tw.scroll_top <= app.pen_row {
         f.set_cursor(
-            area.x + (app.pen_col - app.scroll_left) as u16,
-            1 + area.y + (app.pen_row - app.scroll_top) as u16);
+            inner_area.x + (app.pen_col - app.scroll_left) as u16,
+            1 + inner_area.y + (app.pen_row - app.scroll_top) as u16);
     }
     /*
     let text = vec![

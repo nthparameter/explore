@@ -46,67 +46,12 @@ impl<'a> App<'a> {
             text_window,
         }
     }
-/*
-    pub fn on_cursor_down(&mut self) {
-        if self.pen_row < self.text_buffer.text_line_count {
-            self.pen_row += 1;
-        }
-    }
 
-    pub fn on_cursor_left(&mut self) {
-        if self.pen_col > 0 {
-            self.pen_col -= 1;
-        }
-    }
-
-    pub fn on_cursor_right(&mut self) {
-        if self.pen_col < 10 {
-            self.pen_col += 1;
-        }
-    }
-
-    pub fn on_cursor_up(&mut self) {
-        if self.pen_row > 0 {
-            self.pen_row -= 1;
-        }
-    }*/
     pub fn on_open_file(&mut self) {
         let tb = self.buffer_manager.load(std::path::Path::new("src/app.rs"))
             .expect("read file");
-        self.text_window
-            .set_text_buffer(tb);
-        //self.text = std::fs::read_to_string("src/app.rs").expect("read file");
-        //self.text_line_count = self.text.lines().count();
+        self.text_window.set_text_buffer(tb);
     }
-/*
-
-    pub fn on_page_up(&mut self) {
-        if self.scroll_top > 0 {
-            self.scroll_top -= 1;
-        }
-    }
-
-    pub fn on_page_down(&mut self) {
-        if self.scroll_top < self.text_buffer.text_line_count {
-            self.scroll_top += 1;
-        }
-    }
-
-    pub fn on_scroll_up(&mut self) {
-        if self.scroll_top > 0 {
-            self.scroll_top -= 1;
-        }
-    }
-
-    pub fn on_scroll_down(&mut self) {
-        if self.scroll_top < self.text_buffer.text_line_count {
-            self.scroll_top += 1;
-        }
-    }*/
-/*
-    pub fn on_right(&mut self) {
-        self.tabs.next();
-    }*/
 
     pub fn on_select_editor_tab(&mut self) {
         self.tabs.index = 0;
@@ -115,10 +60,6 @@ impl<'a> App<'a> {
     pub fn on_select_terminal_tab(&mut self) {
         self.tabs.index = 1;
     }
-/*
-    pub fn on_left(&mut self) {
-        self.tabs.previous();
-    }*/
 
     pub fn on_tick(&mut self) {
         // Update progress

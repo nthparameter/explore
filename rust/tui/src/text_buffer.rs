@@ -71,7 +71,6 @@ impl<'a> TextBuffer {
     }
 
     fn parse_text(&mut self) {
-        //let mut line_number = 1;
         let mut line_start = 0;
         let mut row_len = 0;
         self.lines = vec![0];
