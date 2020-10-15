@@ -50,9 +50,9 @@ impl<'a> TextWindow<'a> {
     }
 
     pub fn on_page_down(&mut self) {
-        let line_count = self.text_buffer.lock().unwrap().text_line_count;
-        if line_count <= 2 * self.render_height + self.scroll_top  {
-            self.scroll_top = line_count - self.render_height;
+        let row_count = self.text_buffer.lock().unwrap().text_row_count;
+        if row_count <= 2 * self.render_height + self.scroll_top  {
+            self.scroll_top = row_count - self.render_height;
         } else {
             self.scroll_top += self.render_height;
         }
@@ -69,7 +69,7 @@ impl<'a> TextWindow<'a> {
     }
 
     pub fn on_scroll_down(&mut self) {
-        if self.scroll_top < self.text_buffer.lock().unwrap().text_line_count {
+        if self.scroll_top < self.text_buffer.lock().unwrap().text_row_count {
             self.scroll_top += 1;
         }
     }

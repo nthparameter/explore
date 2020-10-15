@@ -3,6 +3,7 @@
 use crate::key_const::*;
 use crate::window::EventHandler;
 use std::iter;
+use std::path::Path;
 
 pub struct TextBuffer {
     pub file_path: std::path::PathBuf,
@@ -16,14 +17,14 @@ pub struct TextBuffer {
     rows: Vec<usize>,
     row_to_line: Vec<usize>,
     text: String,
-    pub text_line_count: usize,
+    pub text_row_count: usize,
 }
 
 
 impl<'a> TextBuffer {
 
     pub fn new(file_path: &std::path::Path, data: String) -> Self {
-        let text_line_count = data.lines().count();
+        let text_row_count = data.lines().count();
         let mut tb = Self {
             file_path: file_path.to_path_buf(),
             lines: vec![],
@@ -33,21 +34,21 @@ impl<'a> TextBuffer {
             rows: vec![],
             row_to_line: vec![],
             text: data,
-            text_line_count,
+            text_row_count,
         };
         tb.parse_text();
         tb
     }
 
     pub fn get_row(&self, row: usize) -> Option<&str> {
-        if row >= self.text_line_count {
+        if row >= self.text_row_count {
             return None;
         }
         Some(&self.text[self.rows[row]..self.rows[row+1]])
     }
 
     pub fn on_cursor_down(&mut self) {
-        if self.pen_row + 1 < self.text_line_count {
+        if self.pen_row + 1 < self.text_row_count {
             self.pen_row += 1;
         }
     }
@@ -74,9 +75,9 @@ impl<'a> TextBuffer {
     fn parse_text(&mut self) {
         let mut line_start = 0;
         let mut row_len = 0;
-        self.lines = vec![0];
-        self.rows = vec![line_start];
-        self.row_to_line = vec![1];
+        self.lines = vec![];
+        self.rows = vec![];
+        self.row_to_line = vec![];
         for (i,c) in self.text.chars().enumerate() {
             if c == '\n' {
                 self.lines.push(self.rows.len());
@@ -95,7 +96,7 @@ impl<'a> TextBuffer {
                 }
             }
         }
-        self.text_line_count = self.rows.len();
+        self.text_row_count = self.rows.len();
         // Push one extra entry to represent the last piece of text.
         self.rows.push(self.text.len());
     }
@@ -144,7 +145,76 @@ impl<'a> Iterator for TextBufferIterator<'a> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<&'a str> {
+        let result = self.tb.get_row(self.index);
         self.index += 1;
-        self.tb.get_row(self.index)
+        result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_text_buffer() {
+        let tb = TextBuffer::new(Path::new("path/foo.txt"), "\npear\nmellon\n".to_string());
+        assert_eq!(tb.file_path, Path::new("path/foo.txt"));
+        assert_eq!(tb.lines, vec![0, 1, 2]);
+        assert_eq!(tb.name, "path/foo.txt".to_string());
+        assert_eq!(tb.pen_col, 0);
+        assert_eq!(tb.pen_row, 0);
+        //assert_eq!(tb.rows, vec!["pear".to_string(), "mellon".to_string());
+        assert_eq!(tb.rows, vec![0, 1, 6, 13]);
+        assert_eq!(tb.row_to_line, vec![1, 2, 3]);
+        assert_eq!(tb.text, "\npear\nmellon\n".to_string());
+        assert_eq!(tb.text_row_count, 3);
+
+        assert_eq!(tb.get_row(0), Some("\n"));
+        assert_eq!(tb.get_row(1), Some("pear\n"));
+        assert_eq!(tb.get_row(2), Some("mellon\n"));
+        assert_eq!(tb.get_row(3), None);
+
+        let mut it = tb.line_numbers();
+        assert_eq!(it.next(), Some(1));
+        assert_eq!(it.next(), Some(2));
+        assert_eq!(it.next(), Some(3));
+        assert_eq!(it.next(), None);
+
+        let mut it = tb.rows();
+        assert_eq!(it.next(), Some("\n"));
+        assert_eq!(it.next(), Some("pear\n"));
+        assert_eq!(it.next(), Some("mellon\n"));
+        assert_eq!(it.next(), None);
+    }
+
+    #[test]
+    fn test_text_buffer_long_line() {
+        let text = "\nuse crate::buffer_manager::BufferManager;\nmellon\n".to_string();
+        let tb = TextBuffer::new(Path::new("path/foo.txt"), text);
+        assert_eq!(tb.lines, vec![0, 2, 3]);
+        assert_eq!(tb.rows, vec![0, 1, 41, 43, 50]);
+        assert_eq!(tb.row_to_line, vec![1, 0, 2, 3]);
+        //assert_eq!(tb.text, &text);
+        assert_eq!(tb.text_row_count, 4);
+
+        assert_eq!(tb.get_row(0), Some("\n"));
+        assert_eq!(tb.get_row(1), Some("use crate::buffer_manager::BufferManager"));
+        assert_eq!(tb.get_row(2), Some(";\n"));
+        assert_eq!(tb.get_row(3), Some("mellon\n"));
+        assert_eq!(tb.get_row(4), None);
+
+        let mut it = tb.line_numbers();
+        assert_eq!(it.next(), Some(1));
+        assert_eq!(it.next(), Some(0));
+        assert_eq!(it.next(), Some(2));
+        assert_eq!(it.next(), Some(3));
+        assert_eq!(it.next(), None);
+
+        let mut it = tb.rows();
+        assert_eq!(it.next(), Some("\n"));
+        assert_eq!(it.next(), Some("use crate::buffer_manager::BufferManager"));
+        assert_eq!(it.next(), Some(";\n"));
+        assert_eq!(it.next(), Some("mellon\n"));
+        assert_eq!(it.next(), None);
     }
 }
