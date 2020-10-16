@@ -13,6 +13,7 @@ pub struct TextBuffer {
     pub pen_row: usize,
     // Each entry in rows is an offset to a character in `text`.
     rows: Vec<usize>,
+    row_ends: Vec<usize>,
     row_to_line: Vec<usize>,
     text: String,
     pub text_row_count: usize,
@@ -28,6 +29,7 @@ impl<'a> TextBuffer {
             pen_col: 0,
             pen_row: 0,
             rows: vec![],
+            row_ends: vec![],
             row_to_line: vec![],
             text: data,
             text_row_count,
@@ -40,12 +42,16 @@ impl<'a> TextBuffer {
         if row >= self.text_row_count {
             return None;
         }
-        Some(&self.text[self.rows[row]..self.rows[row + 1]])
+        Some(&self.text[self.rows[row]..self.row_ends[row]])
     }
 
     pub fn on_cursor_down(&mut self) {
         if self.pen_row + 1 < self.text_row_count {
             self.pen_row += 1;
+            let row_len = self.get_row(self.pen_row).unwrap().len();
+            if self.pen_col > row_len {
+                self.pen_col = row_len;
+            }
         }
     }
 
@@ -57,7 +63,7 @@ impl<'a> TextBuffer {
 
     pub fn on_cursor_right(&mut self) {
         let row_limit = self.get_row(self.pen_row).unwrap().len();
-        if self.pen_col + 1 < row_limit {
+        if self.pen_col < row_limit {
             self.pen_col += 1;
         }
     }
@@ -69,32 +75,32 @@ impl<'a> TextBuffer {
     }
 
     fn parse_text(&mut self) {
-        let mut line_start = 0;
         let mut row_len = 0;
         self.lines = vec![0];
-        self.rows = vec![];
+        self.rows = vec![0];
+        self.row_ends = vec![];
         self.row_to_line = vec![1];
         for (i, c) in self.text.chars().enumerate() {
             if c == '\n' {
                 self.lines.push(self.rows.len());
                 self.row_to_line.push(self.lines.len());
-                self.rows.push(line_start);
-                line_start = i + 1;
+                self.row_ends.push(i);
+                self.rows.push(i + 1);
                 row_len = 0;
             } else {
                 row_len += 1;
                 if row_len > 40 {
                     // The 0 is a placeholder for line continuation.
                     self.row_to_line.push(0);
-                    self.rows.push(line_start);
-                    line_start = i;
+                    self.row_ends.push(i);
+                    self.rows.push(i);
                     row_len = 0;
                 }
             }
         }
         self.text_row_count = self.rows.len();
         // Push one extra entry to represent the last piece of text.
-        self.rows.push(self.text.len());
+        self.row_ends.push(self.text.len());
     }
 
     pub fn line_numbers(&'a self) -> impl Iterator<Item = usize> + 'a {
