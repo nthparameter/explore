@@ -45,10 +45,17 @@ impl<'a> TextBuffer {
         Some(&self.text[self.rows[row]..self.row_ends[row]])
     }
 
+    pub fn get_row_width(&self, row: usize) -> Option<usize> {
+        if row >= self.text_row_count {
+            return None;
+        }
+        Some(self.row_ends[row] - self.rows[row])
+    }
+
     pub fn on_cursor_down(&mut self) {
         if self.pen_row + 1 < self.text_row_count {
             self.pen_row += 1;
-            let row_len = self.get_row(self.pen_row).unwrap().len();
+            let row_len = self.get_row_width(self.pen_row).unwrap();
             if self.pen_col > row_len {
                 self.pen_col = row_len;
             }
@@ -58,19 +65,29 @@ impl<'a> TextBuffer {
     pub fn on_cursor_left(&mut self) {
         if self.pen_col > 0 {
             self.pen_col -= 1;
+        } else if self.pen_row > 0 {
+            self.pen_row -= 1;
+            self.pen_col = self.get_row_width(self.pen_row).unwrap();
         }
     }
 
     pub fn on_cursor_right(&mut self) {
-        let row_limit = self.get_row(self.pen_row).unwrap().len();
+        let row_limit = self.get_row_width(self.pen_row).unwrap();
         if self.pen_col < row_limit {
             self.pen_col += 1;
+        } else if self.pen_row + 1 < self.text_row_count {
+            self.pen_row += 1;
+            self.pen_col = 0;
         }
     }
 
     pub fn on_cursor_up(&mut self) {
         if self.pen_row > 0 {
             self.pen_row -= 1;
+            let row_len = self.get_row_width(self.pen_row).unwrap();
+            if self.pen_col > row_len {
+                self.pen_col = row_len;
+            }
         }
     }
 
