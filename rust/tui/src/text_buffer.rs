@@ -52,6 +52,13 @@ impl<'a> TextBuffer {
         Some(self.row_ends[row] - self.rows[row])
     }
 
+    fn insert_letter(&mut self, ch: char) {
+        let offset = self.rows[self.pen_row] + self.pen_col;
+        self.text = self.text[0..offset].to_string() + &ch.to_string() + &self.text[offset..];
+        self.parse_text();
+        self.on_cursor_right();
+    }
+
     pub fn on_cursor_down(&mut self) {
         if self.pen_row + 1 < self.text_row_count {
             self.pen_row += 1;
@@ -137,7 +144,12 @@ impl<'a> EventHandler for TextBuffer {
                 KEY_LEFT => self.on_cursor_left(),
                 KEY_RIGHT => self.on_cursor_right(),
                 KEY_UP => self.on_cursor_up(),
-                _ => {}
+                _ => {
+                    match key_event.code {
+                      crossterm::event::KeyCode::Char(ch) => self.insert_letter(ch),
+                      _ => {}
+                    }
+                }
             }
         }
     }
