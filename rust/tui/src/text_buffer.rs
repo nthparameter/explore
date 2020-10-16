@@ -71,9 +71,9 @@ impl<'a> TextBuffer {
     fn parse_text(&mut self) {
         let mut line_start = 0;
         let mut row_len = 0;
-        self.lines = vec![];
+        self.lines = vec![0];
         self.rows = vec![];
-        self.row_to_line = vec![];
+        self.row_to_line = vec![1];
         for (i, c) in self.text.chars().enumerate() {
             if c == '\n' {
                 self.lines.push(self.rows.len());
@@ -187,7 +187,6 @@ mod tests {
         assert_eq!(tb.lines, vec![0, 2, 3]);
         assert_eq!(tb.rows, vec![0, 1, 41, 43, 50]);
         assert_eq!(tb.row_to_line, vec![1, 0, 2, 3]);
-        //assert_eq!(tb.text, &text);
         assert_eq!(tb.text_row_count, 4);
 
         assert_eq!(tb.get_row(0), Some("\n"));

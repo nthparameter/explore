@@ -92,9 +92,10 @@ where
         .take(area.height as usize)
         .map(|s| Spans::from(s))
         .collect::<Vec<Spans>>();
-    //for s in &text { println!("<{:?}", s); }
     let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
     f.render_widget(paragraph, area);
+
+    // Show the cursor if it's in the view.
     let height = inner_area.height as usize;
     let width = inner_area.width as usize;
     if tw.scroll_top <= tb.pen_row
@@ -143,8 +144,6 @@ where
     B: Backend,
 {
     let tw = &mut app.text_window;
-    tw.render_width = area.width as usize;
-    tw.render_height = area.height as usize;
     let tb = &tw.text_buffer.lock().unwrap();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &tb.name,
