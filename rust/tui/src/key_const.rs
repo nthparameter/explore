@@ -1,8 +1,28 @@
 use crossterm::event::{self, KeyCode};
 
+/// Alt key modified keys.
+// Not working in i term2.
+pub const ALT_END: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::End,
+    modifiers: event::KeyModifiers::ALT,
+};
+// Not working in i term2.
+pub const ALT_HOME: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::Home,
+    modifiers: event::KeyModifiers::ALT,
+};
+
 /// Control key modified keys.
 pub const CTRL_DOWN: event::KeyEvent = event::KeyEvent {
     code: KeyCode::Down,
+    modifiers: event::KeyModifiers::CONTROL,
+};
+pub const CTRL_END: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::End,
+    modifiers: event::KeyModifiers::CONTROL,
+};
+pub const CTRL_HOME: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::Home,
     modifiers: event::KeyModifiers::CONTROL,
 };
 pub const CTRL_O: event::KeyEvent = event::KeyEvent {
@@ -21,6 +41,14 @@ pub const CTRL_UP: event::KeyEvent = event::KeyEvent {
 /// Plain keys.
 pub const KEY_DOWN: event::KeyEvent = event::KeyEvent {
     code: KeyCode::Down,
+    modifiers: event::KeyModifiers::NONE,
+};
+pub const KEY_END: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::End,
+    modifiers: event::KeyModifiers::NONE,
+};
+pub const KEY_HOME: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::Home,
     modifiers: event::KeyModifiers::NONE,
 };
 pub const KEY_F2: event::KeyEvent = event::KeyEvent {

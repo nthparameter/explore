@@ -79,6 +79,20 @@ impl<'a> TextWindow<'a> {
         }
     }
 
+    pub fn scroll_to_pen(&mut self) {
+        let tb = self.text_buffer.lock().unwrap();
+        if tb.pen_row < self.scroll_top {
+            self.scroll_top = tb.pen_row;
+        } else if tb.pen_row >= self.scroll_top + self.render_height {
+            self.scroll_top = tb.pen_row - self.render_height + 1;
+        }
+        if tb.pen_col < self.scroll_left {
+            self.scroll_left = tb.pen_col;
+        } else if tb.pen_col >= self.scroll_left + self.render_width {
+            self.scroll_left = tb.pen_col - self.render_width + 1;
+        }
+    }
+
     pub fn set_text_buffer(&mut self, tb: Arc<Mutex<TextBuffer>>) {
         self.text_buffer = tb;
     }
@@ -92,7 +106,10 @@ impl<'a> EventHandler for TextWindow<'a> {
                 CTRL_UP => self.on_scroll_up(),
                 KEY_PAGE_DOWN => self.on_page_down(),
                 KEY_PAGE_UP => self.on_page_up(),
-                _ => self.text_buffer.lock().unwrap().handle_event(event),
+                _ => {
+                    self.text_buffer.lock().unwrap().handle_event(event);
+                    self.scroll_to_pen();
+                },
             }
         }
     }

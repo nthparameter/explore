@@ -56,20 +56,41 @@ impl<'a> TextBuffer {
         let offset = self.rows[self.pen_row] + self.pen_col;
         self.text = self.text[0..offset].to_string() + &ch.to_string() + &self.text[offset..];
         self.parse_text();
-        self.on_cursor_right();
+        self.pen_right();
     }
 
-    pub fn on_cursor_down(&mut self) {
+    /// Move pen to bottom of document.
+    pub fn pen_bottom(&mut self) {
+        self.pen_row = self.text_row_count - 1;
+        self.pen_col = self.get_row_width(self.pen_row).unwrap();
+    }
+
+    /// Move the pen down one row, or if pen is on the last row move to the
+    /// end of that row.
+    pub fn pen_down_or_end(&mut self) {
         if self.pen_row + 1 < self.text_row_count {
             self.pen_row += 1;
             let row_len = self.get_row_width(self.pen_row).unwrap();
             if self.pen_col > row_len {
                 self.pen_col = row_len;
             }
+        } else {
+            assert_eq!(self.pen_row, self.text_row_count - 1);
+            self.pen_col = self.get_row_width(self.pen_row).unwrap();
         }
     }
 
-    pub fn on_cursor_left(&mut self) {
+    /// Move pen to end of current row.
+    pub fn pen_row_end(&mut self) {
+        self.pen_col = self.get_row_width(self.pen_row).unwrap();
+    }
+
+    /// Move pen to start of current row.
+    pub fn pen_row_start(&mut self) {
+        self.pen_col = 0;
+    }
+
+    pub fn pen_left(&mut self) {
         if self.pen_col > 0 {
             self.pen_col -= 1;
         } else if self.pen_row > 0 {
@@ -78,7 +99,7 @@ impl<'a> TextBuffer {
         }
     }
 
-    pub fn on_cursor_right(&mut self) {
+    pub fn pen_right(&mut self) {
         let row_limit = self.get_row_width(self.pen_row).unwrap();
         if self.pen_col < row_limit {
             self.pen_col += 1;
@@ -88,14 +109,23 @@ impl<'a> TextBuffer {
         }
     }
 
-    pub fn on_cursor_up(&mut self) {
+    /// Move pen up one row, or if at the top row move to start of row.
+    pub fn pen_up_or_start(&mut self) {
         if self.pen_row > 0 {
             self.pen_row -= 1;
             let row_len = self.get_row_width(self.pen_row).unwrap();
             if self.pen_col > row_len {
                 self.pen_col = row_len;
             }
+        } else {
+            self.pen_col =0;
         }
+    }
+
+    /// Move pen to bottom of document.
+    pub fn pen_top(&mut self) {
+        self.pen_row = 0;
+        self.pen_col = 0;
     }
 
     fn parse_text(&mut self) {
@@ -140,10 +170,14 @@ impl<'a> EventHandler for TextBuffer {
     fn handle_event(&mut self, event: &crossterm::event::Event) {
         if let crossterm::event::Event::Key(key_event) = event {
             match *key_event {
-                KEY_DOWN => self.on_cursor_down(),
-                KEY_LEFT => self.on_cursor_left(),
-                KEY_RIGHT => self.on_cursor_right(),
-                KEY_UP => self.on_cursor_up(),
+                CTRL_END => self.pen_bottom(),
+                CTRL_HOME => self.pen_top(),
+                KEY_DOWN => self.pen_down_or_end(),
+                KEY_END => self.pen_row_end(),
+                KEY_HOME => self.pen_row_start(),
+                KEY_LEFT => self.pen_left(),
+                KEY_RIGHT => self.pen_right(),
+                KEY_UP => self.pen_up_or_start(),
                 _ => {
                     match key_event.code {
                       crossterm::event::KeyCode::Char(ch) => self.insert_letter(ch),
