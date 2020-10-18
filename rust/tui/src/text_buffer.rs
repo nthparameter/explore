@@ -179,6 +179,16 @@ impl<'a> TextBuffer {
 
     pub fn undo(&mut self) {
     }
+
+    pub fn text_bytes(&self) -> &[u8] {
+        &self.text.as_bytes()
+    }
+
+/*
+    pub fn text_iter(&self) -> impl Iterator<Item = u8> {
+        self.text.into_bytes().into_iter()
+    }
+*/
 }
 
 impl<'a> EventHandler for TextBuffer {

@@ -47,7 +47,7 @@ impl<'a> App<'a> {
     }
 
     pub fn save_all_files(&mut self) {
-        //self.buffer_manager.save_all_files();
+        self.buffer_manager.save_all_files();
     }
 
     pub fn on_select_editor_tab(&mut self) {

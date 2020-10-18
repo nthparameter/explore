@@ -1,5 +1,7 @@
 /// The BufferManager has a reference to every open buffer.
 use crate::text_buffer::TextBuffer;
+use std::fs::{File};
+use std::io::prelude::*;
 use std::sync::{Arc, Mutex};
 
 pub struct BufferManager {
@@ -27,5 +29,23 @@ impl BufferManager {
         let tb = Arc::new(Mutex::new(TextBuffer::new(path, data)));
         self.buffers.push(tb.clone());
         Ok(tb)
+    }
+
+    pub fn save_all_files(&mut self) {
+        for i in &self.buffers {
+            let tb = i.lock().unwrap();
+            let mut out_file = match File::create(&tb.file_path) {
+                Err(e) => continue,
+                Ok(f) => f,
+            };
+            out_file.write_all(tb.text_bytes()).unwrap();
+            /*
+            let mut stream = std::io::BufWriter::new(out_file).unwrap();
+            for k in tb.text_iter() {
+                stream.write(k);
+            }
+            stream.flush.unwrap();
+            */
+        }
     }
 }
