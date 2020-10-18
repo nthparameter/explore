@@ -38,6 +38,15 @@ impl<'a> TextBuffer {
         tb
     }
 
+    pub fn copy_selection(&mut self) {
+    }
+
+    pub fn cut_selection(&mut self) {
+    }
+
+    pub fn paste(&mut self) {
+    }
+
     pub fn get_row(&self, row: usize) -> Option<&str> {
         if row >= self.text_row_count {
             return None;
@@ -57,6 +66,10 @@ impl<'a> TextBuffer {
         self.text = self.text[0..offset].to_string() + &ch.to_string() + &self.text[offset..];
         self.parse_text();
         self.pen_right();
+    }
+
+    pub fn line_numbers(&'a self) -> impl Iterator<Item = usize> + 'a {
+        self.row_to_line.iter().cloned() //.into_iter()
     }
 
     /// Move pen to bottom of document.
@@ -157,12 +170,14 @@ impl<'a> TextBuffer {
         self.row_ends.push(self.text.len());
     }
 
-    pub fn line_numbers(&'a self) -> impl Iterator<Item = usize> + 'a {
-        self.row_to_line.iter().cloned() //.into_iter()
+    pub fn redo(&mut self) {
     }
 
     pub fn rows(&self) -> impl Iterator<Item = &str> {
         self.into_iter()
+    }
+
+    pub fn undo(&mut self) {
     }
 }
 
@@ -172,6 +187,11 @@ impl<'a> EventHandler for TextBuffer {
             match *key_event {
                 CTRL_END => self.pen_bottom(),
                 CTRL_HOME => self.pen_top(),
+                CTRL_C => self.copy_selection(),
+                CTRL_V => self.paste(),
+                CTRL_X => self.cut_selection(),
+                CTRL_Y => self.redo(),
+                CTRL_Z => self.undo(),
                 KEY_DOWN => self.pen_down_or_end(),
                 KEY_END => self.pen_row_end(),
                 KEY_HOME => self.pen_row_start(),

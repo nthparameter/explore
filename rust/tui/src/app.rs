@@ -3,11 +3,6 @@ use crate::key_const::*;
 use crate::text_window::TextWindow;
 use crate::util::TabsState;
 use crate::window::EventHandler;
-/*use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};*/
 
 pub struct App<'a> {
     pub buffer_manager: BufferManager,
@@ -37,12 +32,22 @@ impl<'a> App<'a> {
         }
     }
 
+    pub fn close_file(&mut self) {
+    }
+
+    pub fn new_file(&mut self) {
+    }
+
     pub fn on_open_file(&mut self) {
         let tb = self
             .buffer_manager
             .load(std::path::Path::new("src/app.rs"))
             .expect("read file");
         self.text_window.set_text_buffer(tb);
+    }
+
+    pub fn save_all_files(&mut self) {
+        //self.buffer_manager.save_all_files();
     }
 
     pub fn on_select_editor_tab(&mut self) {
@@ -66,7 +71,10 @@ impl<'a> EventHandler for App<'_> {
     fn handle_event(&mut self, event: &crossterm::event::Event) {
         if let crossterm::event::Event::Key(key_event) = event {
             match *key_event {
+                CTRL_N => self.new_file(),
                 CTRL_O => self.on_open_file(),
+                CTRL_S => self.save_all_files(),
+                CTRL_W => self.close_file(),
                 CTRL_Q => self.should_quit = true,
                 KEY_F2 => self.on_select_editor_tab(),
                 KEY_F3 => self.on_select_terminal_tab(),
