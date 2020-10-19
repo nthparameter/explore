@@ -4,6 +4,7 @@ mod app;
 mod args;
 mod buffer_manager;
 mod key_const;
+//mod open_file_view;
 mod proc;
 mod text_buffer;
 mod text_window;
@@ -83,7 +84,7 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
 
     // Handle events until `app.should_quit`.
     loop {
-        terminal.draw(|f| ui::draw(f, &mut app))?;
+        terminal.draw(|f| ui::app_ui::draw(f, &mut app))?;
         match rx.recv()? {
             Event::Input(event) => {
                 app.debug_event = event;

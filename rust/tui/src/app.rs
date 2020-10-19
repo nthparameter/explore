@@ -11,6 +11,7 @@ pub struct App<'a> {
     pub progress: f64,
     pub enhanced_graphics: bool,
     pub debug_event: crossterm::event::Event,
+    //pub open_file_view: OpenFileView,
     pub should_quit: bool,
     pub text_window: TextWindow<'a>,
 }
@@ -19,6 +20,7 @@ impl<'a> App<'a> {
     pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
         let mut buffer_manager = BufferManager::new();
         let mut text_window = TextWindow::new(buffer_manager.new_text_buffer());
+        //let mut open_file_view = OpenFileView::new(buffer_manager);
 
         App {
             buffer_manager,
