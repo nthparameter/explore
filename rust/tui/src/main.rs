@@ -1,6 +1,7 @@
 #![deny(unreachable_patterns)]
 
 mod app;
+mod args;
 mod buffer_manager;
 mod key_const;
 mod proc;
@@ -11,6 +12,7 @@ mod util;
 mod window;
 
 use crate::app::App;
+use crate::args::CmdArgs;
 use crate::window::EventHandler;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture},
@@ -36,6 +38,12 @@ enum Event<I> {
 fn main() -> Result<(), Box<dyn ErrorTrait>> {
     //proc::test_subprocesses()?;
     //futures::executor::block_on(proc::test_async_subprocesses());
+    let cmd_args: CmdArgs = argh::from_env();
+    if cmd_args.version {
+        println!("Editor version 0.0.1");
+        return Ok(());
+    }
+    println!("args {:?}", cmd_args.file_paths);
     start_tui()
 }
 
