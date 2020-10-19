@@ -46,6 +46,14 @@ impl<'a> App<'a> {
         self.text_window.set_text_buffer(tb);
     }
 
+    pub fn open_file(&mut self, file_path: &std::path::Path) {
+        let tb = self
+            .buffer_manager
+            .load(std::path::Path::new(file_path))
+            .expect("read file");
+        self.text_window.set_text_buffer(tb);
+    }
+
     pub fn save_all_files(&mut self) {
         self.buffer_manager.save_all_files();
     }

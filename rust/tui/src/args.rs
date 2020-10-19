@@ -1,5 +1,6 @@
 use argh::FromArgs;
 
+/// Command line arguments.
 #[derive(FromArgs)]
 #[argh(description="Text editor with ctrl+q to quit and ctrl+s to save.")]
 pub struct CmdArgs {

@@ -43,11 +43,10 @@ fn main() -> Result<(), Box<dyn ErrorTrait>> {
         println!("Editor version 0.0.1");
         return Ok(());
     }
-    println!("args {:?}", cmd_args.file_paths);
-    start_tui()
+    start_tui(cmd_args)
 }
 
-fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
+fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
     enable_raw_mode()?;
     let mut stdout = stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
@@ -77,6 +76,10 @@ fn start_tui() -> Result<(), Box<dyn ErrorTrait>> {
     });
 
     terminal.clear()?;
+
+    for i in cmd_args.file_paths {
+        app.open_file(std::path::Path::new(&i));
+    }
 
     // Handle events until `app.should_quit`.
     loop {
