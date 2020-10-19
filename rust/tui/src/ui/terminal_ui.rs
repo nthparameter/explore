@@ -6,13 +6,13 @@ use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{
-        Axis, BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Row,
-        Sparkline, Table, Tabs, Wrap,
+        Axis, Block, Borders, Paragraph, Row,
+        Table, Tabs, Wrap,
     },
     Frame,
 };
 
-pub fn draw_second_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+pub fn draw_terminal_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {

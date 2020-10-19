@@ -25,7 +25,7 @@ impl<'a> App<'a> {
         App {
             buffer_manager,
             title,
-            tabs: TabsState::new(vec!["Editor", "Terminal"]),
+            tabs: TabsState::new(vec!["Help", "Open", "Edit", "Search", "Terminal"]),
             progress: 0.0,
             enhanced_graphics,
             debug_event: crossterm::event::Event::Resize(1, 1),
