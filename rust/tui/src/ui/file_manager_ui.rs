@@ -16,24 +16,15 @@ where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+        .constraints([Constraint::Length(1), Constraint::Length(1), Constraint::Min(0)].as_ref())
         .split(area);
     let h_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Length(7), Constraint::Min(0)].as_ref())
         .split(chunks[1]);
-    draw_line_numbers(f, app, h_chunks[0]);
+    //draw_line_numbers(f, app, h_chunks[0]);
     draw_text(f, app, h_chunks[1]);
 
-    let block = Block::default().borders(Borders::NONE).title(Span::styled(
-        "Animals",
-        Style::default()
-            .fg(Color::Magenta)
-            .add_modifier(Modifier::BOLD),
-    ));
-    let text = vec![Spans::from(format!("{}", app.progress))];
-    let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: true });
-    f.render_widget(paragraph, chunks[0]);
     //f.set_cursor(app.pen_col as u16, app.pen_row as u16);
 }
 

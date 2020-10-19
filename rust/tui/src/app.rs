@@ -41,11 +41,7 @@ impl<'a> App<'a> {
     }
 
     pub fn on_open_file(&mut self) {
-        let tb = self
-            .buffer_manager
-            .load(std::path::Path::new("src/app.rs"))
-            .expect("read file");
-        self.text_window.set_text_buffer(tb);
+        self.tabs.index = 1;
     }
 
     pub fn open_file(&mut self, file_path: &std::path::Path) {
@@ -61,11 +57,11 @@ impl<'a> App<'a> {
     }
 
     pub fn on_select_editor_tab(&mut self) {
-        self.tabs.index = 0;
+        self.tabs.index = 2;
     }
 
     pub fn on_select_terminal_tab(&mut self) {
-        self.tabs.index = 1;
+        self.tabs.index = 4;
     }
 
     pub fn on_tick(&mut self) {
