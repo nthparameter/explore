@@ -109,7 +109,7 @@ impl<'a> EventHandler for TextWindow<'a> {
                 _ => {
                     self.text_buffer.lock().unwrap().handle_event(event);
                     self.scroll_to_pen();
-                },
+                }
             }
         }
     }

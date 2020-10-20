@@ -38,14 +38,11 @@ impl<'a> TextBuffer {
         tb
     }
 
-    pub fn copy_selection(&mut self) {
-    }
+    pub fn copy_selection(&mut self) {}
 
-    pub fn cut_selection(&mut self) {
-    }
+    pub fn cut_selection(&mut self) {}
 
-    pub fn paste(&mut self) {
-    }
+    pub fn paste(&mut self) {}
 
     pub fn get_row(&self, row: usize) -> Option<&str> {
         if row >= self.text_row_count {
@@ -131,7 +128,7 @@ impl<'a> TextBuffer {
                 self.pen_col = row_len;
             }
         } else {
-            self.pen_col =0;
+            self.pen_col = 0;
         }
     }
 
@@ -170,25 +167,23 @@ impl<'a> TextBuffer {
         self.row_ends.push(self.text.len());
     }
 
-    pub fn redo(&mut self) {
-    }
+    pub fn redo(&mut self) {}
 
     pub fn rows(&self) -> impl Iterator<Item = &str> {
         self.into_iter()
     }
 
-    pub fn undo(&mut self) {
-    }
+    pub fn undo(&mut self) {}
 
     pub fn text_bytes(&self) -> &[u8] {
         &self.text.as_bytes()
     }
 
-/*
-    pub fn text_iter(&self) -> impl Iterator<Item = u8> {
-        self.text.into_bytes().into_iter()
-    }
-*/
+    /*
+        pub fn text_iter(&self) -> impl Iterator<Item = u8> {
+            self.text.into_bytes().into_iter()
+        }
+    */
 }
 
 impl<'a> EventHandler for TextBuffer {
@@ -208,12 +203,18 @@ impl<'a> EventHandler for TextBuffer {
                 KEY_LEFT => self.pen_left(),
                 KEY_RIGHT => self.pen_right(),
                 KEY_UP => self.pen_up_or_start(),
-                _ => {
-                    match key_event.code {
-                      crossterm::event::KeyCode::Char(ch) => self.insert_letter(ch),
-                      _ => {}
-                    }
-                }
+                crossterm::event::KeyEvent {
+                    code: ch,
+                    modifiers: crossterm::event::KeyModifiers::CONTROL,
+                } => {}
+                crossterm::event::KeyEvent {
+                    code: ch,
+                    modifiers: crossterm::event::KeyModifiers::ALT,
+                } => {}
+                _ => match key_event.code {
+                    crossterm::event::KeyCode::Char(ch) => self.insert_letter(ch),
+                    _ => {}
+                },
             }
         }
     }

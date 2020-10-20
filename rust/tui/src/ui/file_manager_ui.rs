@@ -16,7 +16,14 @@ where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints([Constraint::Length(1), Constraint::Length(1), Constraint::Min(0)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(1),
+                Constraint::Length(1),
+                Constraint::Min(0),
+            ]
+            .as_ref(),
+        )
         .split(area);
     let h_chunks = Layout::default()
         .direction(Direction::Horizontal)

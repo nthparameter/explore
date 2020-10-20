@@ -1,6 +1,6 @@
 /// The BufferManager has a reference to every open buffer.
 use crate::text_buffer::TextBuffer;
-use std::fs::{File};
+use std::fs::File;
 use std::io::prelude::*;
 use std::sync::{Arc, Mutex};
 
@@ -15,11 +15,8 @@ impl BufferManager {
         }
     }
 
-    pub fn new_text_buffer(&mut self) -> Arc<Mutex<TextBuffer>> {
-        let tb = Arc::new(Mutex::new(TextBuffer::new(
-            std::path::Path::new(""),
-            "<none>".to_string(),
-        )));
+    pub fn new_text_buffer(&mut self, path: &std::path::Path) -> Arc<Mutex<TextBuffer>> {
+        let tb = Arc::new(Mutex::new(TextBuffer::new(path, "".to_string())));
         self.buffers.push(tb.clone());
         tb
     }

@@ -4,10 +4,7 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Axis, BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Row,
-        Sparkline, Table, Tabs, Wrap,
-    },
+    widgets::{Axis, BarChart, Block, Borders, List, ListItem, Paragraph, Row, Tabs, Wrap},
     Frame,
 };
 
@@ -111,12 +108,7 @@ where
 {
     let tw = &mut app.text_window;
     let tb = &tw.text_buffer.lock().unwrap();
-    let block = Block::default().borders(Borders::TOP).title(Span::styled(
-        &tb.name,
-        Style::default()
-            .fg(Color::Magenta)
-            .add_modifier(Modifier::BOLD),
-    ));
+    let block = Block::default().borders(Borders::TOP);
     let text = tb
         .line_numbers()
         .skip(tw.scroll_top)

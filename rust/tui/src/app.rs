@@ -19,13 +19,16 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
         let mut buffer_manager = BufferManager::new();
-        let mut text_window = TextWindow::new(buffer_manager.new_text_buffer());
+        let mut text_window =
+            TextWindow::new(buffer_manager.new_text_buffer(std::path::Path::new(&"")));
         //let mut open_file_view = OpenFileView::new(buffer_manager);
 
+        let mut ts = TabsState::new(vec!["Help", "Open", "Edit", "Search", "Terminal"]);
+        ts.index = 2;
         App {
             buffer_manager,
             title,
-            tabs: TabsState::new(vec!["Help", "Open", "Edit", "Search", "Terminal"]),
+            tabs: ts,
             progress: 0.0,
             enhanced_graphics,
             debug_event: crossterm::event::Event::Resize(1, 1),
@@ -34,22 +37,19 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn close_file(&mut self) {
-    }
+    pub fn close_file(&mut self) {}
 
-    pub fn new_file(&mut self) {
-    }
+    pub fn new_file(&mut self) {}
 
     pub fn on_open_file(&mut self) {
         self.tabs.index = 1;
     }
 
     pub fn open_file(&mut self, file_path: &std::path::Path) {
-        let tb = self
-            .buffer_manager
-            .load(std::path::Path::new(file_path))
-            .expect("read file");
-        self.text_window.set_text_buffer(tb);
+        self.text_window.set_text_buffer(match file_path.exists() {
+            true => self.buffer_manager.load(file_path).expect("read file"),
+            false => self.buffer_manager.new_text_buffer(file_path),
+        });
     }
 
     pub fn save_all_files(&mut self) {

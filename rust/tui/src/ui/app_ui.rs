@@ -10,10 +10,7 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Axis, BarChart, Block, Borders, Paragraph, Row,
-        Tabs, Wrap,
-    },
+    widgets::{Axis, BarChart, Block, Borders, Paragraph, Row, Tabs, Wrap},
     Frame,
 };
 

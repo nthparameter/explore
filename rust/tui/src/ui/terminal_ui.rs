@@ -5,10 +5,7 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Axis, Block, Borders, Paragraph, Row,
-        Table, Tabs, Wrap,
-    },
+    widgets::{Axis, Block, Borders, Paragraph, Row, Table, Tabs, Wrap},
     Frame,
 };
 
