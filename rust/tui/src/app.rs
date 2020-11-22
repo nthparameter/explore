@@ -3,6 +3,7 @@ use crate::key_const::*;
 use crate::text_window::TextWindow;
 use crate::util::TabsState;
 use crate::window::EventHandler;
+use log;
 
 pub struct App<'a> {
     pub buffer_manager: BufferManager,
@@ -17,7 +18,8 @@ pub struct App<'a> {
 }
 
 impl<'a> App<'a> {
-    pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
+    pub fn new(title: &'a str, /*log: &mut Log,*/ enhanced_graphics: bool) -> App<'a> {
+        log::info!("Creating App");
         let mut buffer_manager = BufferManager::new();
         let mut text_window =
             TextWindow::new(buffer_manager.new_text_buffer(std::path::Path::new(&"")));

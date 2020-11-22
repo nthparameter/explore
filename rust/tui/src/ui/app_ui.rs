@@ -2,6 +2,7 @@ use crate::app::App;
 use crate::ui::debug_ui;
 use crate::ui::file_manager_ui;
 use crate::ui::help_ui;
+use crate::ui::log_ui;
 use crate::ui::search_ui;
 use crate::ui::terminal_ui;
 use crate::ui::text_editor_ui;
@@ -21,6 +22,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             [
                 Constraint::Length(3),
                 Constraint::Min(0),
+                Constraint::Length(4),
                 Constraint::Length(4),
             ]
             .as_ref(),
@@ -49,4 +51,5 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     };
     // Draw debug view.
     debug_ui::draw_debug_panel(f, app, chunks[2]);
+    log_ui::draw_log_panel(f, app, chunks[3]);
 }

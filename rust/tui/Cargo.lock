@@ -756,6 +756,8 @@ dependencies = [
  "cassowary",
  "crossterm",
  "futures",
+ "lazy_static",
+ "log",
  "rand",
  "tui",
  "unicode-segmentation",

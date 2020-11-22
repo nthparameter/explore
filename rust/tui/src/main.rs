@@ -4,6 +4,7 @@ mod app;
 mod args;
 mod buffer_manager;
 mod key_const;
+mod logging;
 //mod open_file_view;
 mod proc;
 mod text_buffer;
@@ -21,6 +22,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use key_const::*;
+use log;
 
 use std::{
     error::Error as ErrorTrait,
@@ -39,12 +41,16 @@ enum Event<I> {
 fn main() -> Result<(), Box<dyn ErrorTrait>> {
     //proc::test_subprocesses()?;
     //futures::executor::block_on(proc::test_async_subprocesses());
+    logging::init()?;
+    log::info!("Enter main()");
     let cmd_args: CmdArgs = argh::from_env();
     if cmd_args.version {
         println!("Editor version 0.0.1");
         return Ok(());
     }
-    start_tui(cmd_args)
+    start_tui(cmd_args)?;
+    log::info!("Exit main()");
+    Ok(())
 }
 
 fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
