@@ -1,5 +1,6 @@
 /// The BufferManager has a reference to every open buffer.
 use crate::text_buffer::TextBuffer;
+use log;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::{Arc, Mutex};
@@ -25,6 +26,7 @@ impl BufferManager {
         let data = std::fs::read_to_string(path)?;
         let tb = Arc::new(Mutex::new(TextBuffer::new(path, data)));
         self.buffers.push(tb.clone());
+        log::info!("Load text buffer \"{}\"", path.display());
         Ok(tb)
     }
 
@@ -43,6 +45,7 @@ impl BufferManager {
             }
             stream.flush.unwrap();
             */
+            log::info!("Saved text buffer \"{}\"", tb.file_path.display());
         }
     }
 }
