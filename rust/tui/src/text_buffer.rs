@@ -1,20 +1,31 @@
 use crate::key_const::*;
 use crate::window::EventHandler;
+use more_asserts::*;
 use std::iter;
 use std::path::Path;
 
 pub struct TextBuffer {
+    /// The OS specific path to the file backing the buffer.
     pub file_path: std::path::PathBuf,
-    // Each entry in lines is an index into `rows` for the first row of the
-    // line.
+    /// Each entry in lines is an index into `rows` for the first row of the
+    /// line.
     lines: Vec<usize>,
+    /// String version of the file_path or placeholder for new buffers that are
+    /// not backed by a file on disk.
     pub name: String,
+    /// The column where edits will occur.
     pub pen_col: usize,
+    /// the row where edits will occur.
     pub pen_row: usize,
-    // Each entry in rows is an offset to a character in `text`.
+    /// Each entry in rows is an offset to a character in `text`.
     rows: Vec<usize>,
+    /// Index of '\n' characters (or end of file) in 'text'.
     row_ends: Vec<usize>,
+    /// Convert a row index into a line number. In wrapped lines the row index
+    /// may be much higher than the line number (as each line may be any number
+    /// of rows).
     row_to_line: Vec<usize>,
+    /// The raw contents of the buffer.
     text: String,
     pub text_row_count: usize,
 }
@@ -44,6 +55,7 @@ impl<'a> TextBuffer {
 
     pub fn paste(&mut self) {}
 
+    /// Get the contents of a row of the buffer. Excludes the trailing newline.
     pub fn get_row(&self, row: usize) -> Option<&str> {
         if row >= self.text_row_count {
             return None;
@@ -51,13 +63,19 @@ impl<'a> TextBuffer {
         Some(&self.text[self.rows[row]..self.row_ends[row]])
     }
 
+    /// The width of the row in display cells (some characters are zero width,
+    /// while others may be double width).
     pub fn get_row_width(&self, row: usize) -> Option<usize> {
         if row >= self.text_row_count {
             return None;
         }
+        debug_assert_eq!(self.rows.len(), self.row_ends.len());
+        debug_assert_lt!(row, self.row_ends.len());
+        debug_assert_ge!(self.row_ends[row], self.rows[row]);
         Some(self.row_ends[row] - self.rows[row])
     }
 
+    /// Add a character to the buffer at the pen row/col location.
     fn insert_letter(&mut self, ch: char) {
         let offset = self.rows[self.pen_row] + self.pen_col;
         self.text = self.text[0..offset].to_string() + &ch.to_string() + &self.text[offset..];
@@ -100,6 +118,8 @@ impl<'a> TextBuffer {
         self.pen_col = 0;
     }
 
+    /// Move the edit location one character to the left, wrapping to end of the
+    /// prior row if appropriate.
     pub fn pen_left(&mut self) {
         if self.pen_col > 0 {
             self.pen_col -= 1;
@@ -109,6 +129,8 @@ impl<'a> TextBuffer {
         }
     }
 
+    /// Move the edit location one character to the right, wrapping to start of
+    /// the next row if appropriate.
     pub fn pen_right(&mut self) {
         let row_limit = self.get_row_width(self.pen_row).unwrap();
         if self.pen_col < row_limit {
@@ -165,6 +187,12 @@ impl<'a> TextBuffer {
         self.text_row_count = self.rows.len();
         // Push one extra entry to represent the last piece of text.
         self.row_ends.push(self.text.len());
+
+        // Post conditions.
+        debug_assert_eq!(self.text_row_count, self.rows.len());
+        debug_assert_eq!(self.rows.len(), self.row_ends.len());
+        //debug_assert_lt!(self.text_row_count, self.row_ends.len());
+        //debug_assert_le!(self.lines.len(), self.rows.len());
     }
 
     pub fn redo(&mut self) {}
@@ -252,64 +280,124 @@ mod tests {
     fn test_text_buffer() {
         let tb = TextBuffer::new(Path::new("path/foo.txt"), "\npear\nmellon\n".to_string());
         assert_eq!(tb.file_path, Path::new("path/foo.txt"));
-        assert_eq!(tb.lines, vec![0, 1, 2]);
+        assert_eq!(tb.lines, vec![0, 1, 2, 3]);
         assert_eq!(tb.name, "path/foo.txt".to_string());
         assert_eq!(tb.pen_col, 0);
         assert_eq!(tb.pen_row, 0);
         //assert_eq!(tb.rows, vec!["pear".to_string(), "mellon".to_string());
-        assert_eq!(tb.rows, vec![0, 1, 6, 13]);
-        assert_eq!(tb.row_to_line, vec![1, 2, 3]);
+        assert_eq!(tb.rows, &[0, 1, 6, 13]);
+        assert_eq!(tb.row_ends, &[0, 5, 12, 13]);
+        assert_eq!(tb.row_to_line, &[1, 2, 3, 4]);
         assert_eq!(tb.text, "\npear\nmellon\n".to_string());
-        assert_eq!(tb.text_row_count, 3);
+        assert_eq!(tb.text_row_count, 4);
 
-        assert_eq!(tb.get_row(0), Some("\n"));
-        assert_eq!(tb.get_row(1), Some("pear\n"));
-        assert_eq!(tb.get_row(2), Some("mellon\n"));
-        assert_eq!(tb.get_row(3), None);
+        assert_eq!(tb.get_row(0), Some(""));
+        assert_eq!(tb.get_row(1), Some("pear"));
+        assert_eq!(tb.get_row(2), Some("mellon"));
+        assert_eq!(tb.get_row(3), Some(""));
+        assert_eq!(tb.get_row(4), None);
 
         let mut it = tb.line_numbers();
         assert_eq!(it.next(), Some(1));
         assert_eq!(it.next(), Some(2));
         assert_eq!(it.next(), Some(3));
+        assert_eq!(it.next(), Some(4));
         assert_eq!(it.next(), None);
 
         let mut it = tb.rows();
-        assert_eq!(it.next(), Some("\n"));
-        assert_eq!(it.next(), Some("pear\n"));
-        assert_eq!(it.next(), Some("mellon\n"));
+        assert_eq!(it.next(), Some(""));
+        assert_eq!(it.next(), Some("pear"));
+        assert_eq!(it.next(), Some("mellon"));
+        assert_eq!(it.next(), Some(""));
         assert_eq!(it.next(), None);
     }
 
     #[test]
     fn test_text_buffer_long_line() {
         let text = "\nuse crate::buffer_manager::BufferManager;\nmellon\n".to_string();
-        let tb = TextBuffer::new(Path::new("path/foo.txt"), text);
-        assert_eq!(tb.lines, vec![0, 2, 3]);
+        let mut tb = TextBuffer::new(Path::new("path/foo.txt"), text);
+        assert_eq!(tb.lines, vec![0, 1, 3, 4]);
         assert_eq!(tb.rows, vec![0, 1, 41, 43, 50]);
-        assert_eq!(tb.row_to_line, vec![1, 0, 2, 3]);
-        assert_eq!(tb.text_row_count, 4);
+        assert_eq!(tb.row_ends, &[0, 41, 42, 49, 50]);
+        assert_eq!(tb.row_to_line, vec![1, 2, 0, 3, 4]);
+        assert_eq!(tb.text_row_count, 5);
 
-        assert_eq!(tb.get_row(0), Some("\n"));
+        assert_eq!(tb.get_row(0), Some(""));
         assert_eq!(
             tb.get_row(1),
             Some("use crate::buffer_manager::BufferManager")
         );
-        assert_eq!(tb.get_row(2), Some(";\n"));
-        assert_eq!(tb.get_row(3), Some("mellon\n"));
-        assert_eq!(tb.get_row(4), None);
+        assert_eq!(tb.get_row(2), Some(";"));
+        assert_eq!(tb.get_row(3), Some("mellon"));
+        assert_eq!(tb.get_row(4), Some(""));
+        assert_eq!(tb.get_row(5), None);
 
         let mut it = tb.line_numbers();
         assert_eq!(it.next(), Some(1));
-        assert_eq!(it.next(), Some(0));
         assert_eq!(it.next(), Some(2));
+        assert_eq!(it.next(), Some(0));
         assert_eq!(it.next(), Some(3));
+        assert_eq!(it.next(), Some(4));
         assert_eq!(it.next(), None);
+        drop(it);
 
         let mut it = tb.rows();
-        assert_eq!(it.next(), Some("\n"));
+        assert_eq!(it.next(), Some(""));
         assert_eq!(it.next(), Some("use crate::buffer_manager::BufferManager"));
-        assert_eq!(it.next(), Some(";\n"));
-        assert_eq!(it.next(), Some("mellon\n"));
+        assert_eq!(it.next(), Some(";"));
+        assert_eq!(it.next(), Some("mellon"));
+        assert_eq!(it.next(), Some(""));
         assert_eq!(it.next(), None);
+        drop(it);
+
+        assert_eq!(tb.pen_row, 0);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 1);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 2);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 3);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 4);
+        assert_eq!(tb.pen_col, 0);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 4);
+        assert_eq!(tb.pen_col, 0);
+    }
+
+    #[test]
+    fn test_one_line_no_eol() {
+        let text = "short".to_string();
+        let mut tb = TextBuffer::new(Path::new("path/foo.txt"), text);
+        assert_eq!(tb.lines, vec![0]);
+        assert_eq!(tb.rows, vec![0]);
+        assert_eq!(tb.row_ends, &[5]);
+        assert_eq!(tb.row_to_line, vec![1]);
+        assert_eq!(tb.text_row_count, 1);
+
+        assert_eq!(tb.get_row(0), Some("short"));
+        assert_eq!(tb.get_row(1), None);
+
+        let mut it = tb.line_numbers();
+        assert_eq!(it.next(), Some(1));
+        assert_eq!(it.next(), None);
+        drop(it);
+
+        let mut it = tb.rows();
+        assert_eq!(it.next(), Some("short"));
+        assert_eq!(it.next(), None);
+        drop(it);
+
+        assert_eq!(tb.get_row_width(0), Some(5));
+        assert_eq!(tb.get_row_width(1), None);
+
+        assert_eq!(tb.pen_row, 0);
+        assert_eq!(tb.pen_col, 0);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 0);
+        assert_eq!(tb.pen_col, 5);
+        tb.pen_down_or_end();
+        assert_eq!(tb.pen_row, 0);
+        assert_eq!(tb.pen_col, 5);
     }
 }
