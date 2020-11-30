@@ -4,6 +4,41 @@ use more_asserts::*;
 use std::iter;
 use std::path::Path;
 
+pub enum Selection {
+    Char {
+        col: usize,
+        row: usize,
+        chars: usize,
+    },
+    Word {
+        col: usize,
+        row: usize,
+        chars: usize,
+    },
+    // Rectangular, each row starts at same char width column.
+    Rect {
+        col: usize,
+        row: usize,
+        forward: usize,
+        down: usize,
+    },
+    Line {
+        row: usize,
+        down: usize,
+    },
+    // End-of-line, each row starts at '\n' or end-of-file.
+    Eol {
+        row: usize,
+        down: usize,
+    },
+}
+
+pub struct Transform {
+    shape: Selection,
+    old: String,
+    new: String,
+}
+
 pub struct TextBuffer {
     /// The OS specific path to the file backing the buffer.
     pub file_path: std::path::PathBuf,
@@ -28,6 +63,8 @@ pub struct TextBuffer {
     /// The raw contents of the buffer.
     text: String,
     pub text_row_count: usize,
+    transform_index: usize,
+    transforms: Vec<Transform>,
 }
 
 impl<'a> TextBuffer {
@@ -44,9 +81,129 @@ impl<'a> TextBuffer {
             row_to_line: vec![],
             text: data,
             text_row_count,
+            transform_index: 0,
+            transforms: vec![],
         };
         tb.parse_text();
         tb
+    }
+
+    pub fn apply_transform(&mut self) -> (usize, usize) {
+        debug_assert!(self.transform_index <= self.transforms.len());
+        if self.transform_index == self.transforms.len() {
+            return (0, 0);
+        }
+        let transform = &self.transforms[self.transform_index];
+        let mut rec_col = 0;
+        let mut rec_row = 0;
+        match transform.shape {
+            Selection::Char { col, row, chars } => {
+                let offset = self.rows[row] + col;
+                self.text = self.text[0..offset].to_string()
+                    + &transform.new
+                    + &self.text[offset + transform.old.len()..];
+                if let Some(last_cr) = transform.new.rfind("\n") {
+                    rec_row = row + transform.new.split("\n").count() - 1;
+                    rec_col = transform.new.len() - (last_cr + 1);
+                } else {
+                    rec_col = col + transform.new.len();
+                }
+            }
+            Selection::Word { col, row, chars } => (),
+            Selection::Rect {
+                col,
+                row,
+                forward,
+                down,
+            } => (),
+            Selection::Line { row, down } => (),
+            Selection::Eol { row, down } => (),
+        }
+        self.transform_index += 1;
+        self.parse_text();
+        (rec_col, rec_row)
+    }
+
+    pub fn remove_transform(&mut self) -> (usize, usize) {
+        if self.transform_index == 0 {
+            return (0, 0);
+        }
+        self.transform_index -= 1;
+        let transform = &self.transforms[self.transform_index];
+        let mut rec_col = 0;
+        let mut rec_row = 0;
+        match transform.shape {
+            Selection::Char { col, row, chars } => {
+                let offset = self.rows[row] + col;
+                self.text = self.text[0..offset].to_string()
+                    + &transform.old
+                    + &self.text[offset + transform.new.len()..];
+                rec_row = row;
+                rec_col = col;
+            }
+            Selection::Word { col, row, chars } => (),
+            Selection::Rect {
+                col,
+                row,
+                forward,
+                down,
+            } => (),
+            Selection::Line { row, down } => (),
+            Selection::Eol { row, down } => (),
+        }
+        self.parse_text();
+        (rec_col, rec_row)
+    }
+
+    pub fn carriage_return(&mut self) {
+        let shape = Selection::Char {
+            col: self.pen_col,
+            row: self.pen_row,
+            chars: 0,
+        };
+        let old = self.yank(&shape);
+        self.transforms.push(Transform {
+            shape,
+            old,
+            new: "\n".to_string(),
+        });
+        let (col, row) = self.apply_transform();
+        self.pen_col = col;
+        self.pen_row = row;
+        /*
+        let offset = self.rows[self.pen_row] + self.pen_col;
+        self.text = self.text[0..offset].to_string() + &"\n" + &self.text[offset..];
+        self.parse_text();
+        self.pen_right();
+        */
+    }
+
+    pub fn yank(&self, shape: &Selection) -> String {
+        match shape {
+            Selection::Char { col, row, chars } => {
+                let offset = self.rows[*row] + col;
+                self.text[offset..offset + chars].to_string()
+            }
+            Selection::Word { col, row, chars } => {
+                let offset = self.rows[*row] + col;
+                self.text[offset..offset + chars].to_string()
+            }
+            Selection::Rect {
+                col,
+                row,
+                forward,
+                down,
+            } => {
+                let offset = self.rows[*row] + col;
+                self.text[offset..offset + forward].to_string()
+            }
+            Selection::Line { row, down } => {
+                let offset = self.rows[*row];
+                let end = self.rows[row + down];
+                self.text[offset..end].to_string()
+            }
+            Selection::Eol { row, down } => "".to_string(),
+        }
     }
 
     pub fn copy_selection(&mut self) {}
@@ -195,13 +352,21 @@ impl<'a> TextBuffer {
         //debug_assert_le!(self.lines.len(), self.rows.len());
     }
 
-    pub fn redo(&mut self) {}
+    pub fn redo(&mut self) {
+        let (col, row) = self.apply_transform();
+        self.pen_col = col;
+        self.pen_row = row;
+    }
 
     pub fn rows(&self) -> impl Iterator<Item = &str> {
         self.into_iter()
     }
 
-    pub fn undo(&mut self) {}
+    pub fn undo(&mut self) {
+        let (col, row) = self.remove_transform();
+        self.pen_col = col;
+        self.pen_row = row;
+    }
 
     pub fn text_bytes(&self) -> &[u8] {
         &self.text.as_bytes()
@@ -227,6 +392,7 @@ impl<'a> EventHandler for TextBuffer {
                 CTRL_Z => self.undo(),
                 KEY_DOWN => self.pen_down_or_end(),
                 KEY_END => self.pen_row_end(),
+                KEY_ENTER => self.carriage_return(),
                 KEY_HOME => self.pen_row_start(),
                 KEY_LEFT => self.pen_left(),
                 KEY_RIGHT => self.pen_right(),

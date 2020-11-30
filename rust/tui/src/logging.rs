@@ -1,7 +1,6 @@
-
+use lazy_static::lazy_static;
 use std::fmt;
 use std::sync::{Arc, Mutex};
-use lazy_static::lazy_static;
 
 /// Store information for a single logging message.
 pub struct Message {
@@ -27,7 +26,7 @@ impl log::Log for Logging {
 
     fn log(&self, record: &log::Record) {
         if self.enabled(record.metadata()) {
-            let message = Message{
+            let message = Message {
                 file: record.file().map(|x| x.to_string()),
                 level: record.level(),
                 line: record.line(),
@@ -52,6 +51,5 @@ lazy_static! {
 
 /// Initialized the logging system. Call once.
 pub fn init() -> Result<(), log::SetLoggerError> {
-    log::set_logger(&*LOGGER)
-        .map(|()| log::set_max_level(log::LevelFilter::Info))
+    log::set_logger(&*LOGGER).map(|()| log::set_max_level(log::LevelFilter::Info))
 }

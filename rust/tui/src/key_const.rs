@@ -139,6 +139,10 @@ pub const KEY_END: event::KeyEvent = event::KeyEvent {
     code: KeyCode::End,
     modifiers: event::KeyModifiers::NONE,
 };
+pub const KEY_ENTER: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::Enter,
+    modifiers: event::KeyModifiers::NONE,
+};
 pub const KEY_HOME: event::KeyEvent = event::KeyEvent {
     code: KeyCode::Home,
     modifiers: event::KeyModifiers::NONE,
