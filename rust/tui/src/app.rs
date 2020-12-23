@@ -23,7 +23,7 @@ impl<'a> App<'a> {
     pub fn new(title: &'a str, /*log: &mut Log,*/ enhanced_graphics: bool) -> Self {
         log::info!("Creating App");
         let mut buffer_manager = BufferManager::new();
-        let mut text_window =
+        let text_window =
             TextWindow::new(buffer_manager.new_text_buffer(std::path::Path::new(&"")));
         //let mut open_file_view = OpenFileView::new(buffer_manager);
 

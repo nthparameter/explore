@@ -27,15 +27,16 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
         let child = std::process::Command::new(EXE_TO_RUN)
             .stdout(Stdio::piped())
             .spawn()
-            .expect("spawn process");
+            .expect("spawn process.");
         let stdout = child
             .stdout
             //.ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "bytes"))?;
-            .expect("aaaaaaaa");
-        println!("Start bytes threadbbbbbbbbbb");
+            .expect("child has stdout.");
+        println!("Start bytes thread");
         std::thread::spawn(move || {
             stdout.bytes().filter_map(|b| b.ok()).for_each(|b| {
-                tx.send(String::from_utf8(vec![b]).unwrap());
+                tx.send(String::from_utf8(vec![b]).unwrap())
+                    .expect("send byes on channel.");
             });
         });
     }
@@ -55,7 +56,7 @@ pub fn test_subprocesses() -> Result<(), Box<dyn std::error::Error>> {
                 //.filter(|line| line.find("<").is_some())
                 //.for_each(|line| println!("{}", line));
                 .for_each(|line| {
-                    tx2.send(line);
+                    tx2.send(line).expect("send line on channel.");
                 });
         });
     }

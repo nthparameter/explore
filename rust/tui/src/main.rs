@@ -80,7 +80,8 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
                 tx.send(Event::Tick).unwrap();
                 last_tick = Instant::now();
             } else if event::poll(tick_rate - elapsed).unwrap() {
-                tx.send(Event::Input(event::read().unwrap()));
+                tx.send(Event::Input(event::read().unwrap()))
+                    .expect("Send event on channel.");
             }
         }
     });
