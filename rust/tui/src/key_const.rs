@@ -147,12 +147,24 @@ pub const KEY_HOME: event::KeyEvent = event::KeyEvent {
     code: KeyCode::Home,
     modifiers: event::KeyModifiers::NONE,
 };
+pub const KEY_F1: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::F(1),
+    modifiers: event::KeyModifiers::NONE,
+};
 pub const KEY_F2: event::KeyEvent = event::KeyEvent {
     code: KeyCode::F(2),
     modifiers: event::KeyModifiers::NONE,
 };
 pub const KEY_F3: event::KeyEvent = event::KeyEvent {
     code: KeyCode::F(3),
+    modifiers: event::KeyModifiers::NONE,
+};
+pub const KEY_F4: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::F(4),
+    modifiers: event::KeyModifiers::NONE,
+};
+pub const KEY_F5: event::KeyEvent = event::KeyEvent {
+    code: KeyCode::F(5),
     modifiers: event::KeyModifiers::NONE,
 };
 pub const KEY_LEFT: event::KeyEvent = event::KeyEvent {

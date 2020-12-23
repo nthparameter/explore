@@ -1,3 +1,5 @@
+//! Handle command line arguments using the argh crate.
+
 use argh::FromArgs;
 
 /// Command line arguments.

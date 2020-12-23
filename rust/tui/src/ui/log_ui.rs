@@ -1,3 +1,4 @@
+///! User interface to present logging output.
 use crate::app::App;
 use crate::logging;
 use crate::ui;

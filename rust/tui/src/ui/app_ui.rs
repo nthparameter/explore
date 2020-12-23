@@ -1,3 +1,6 @@
+//! User interface for the application. This is the main (or root) UI element
+//! that contains (holds as children) all the other UI elements.
+
 use crate::app::App;
 use crate::ui::debug_ui;
 use crate::ui::file_manager_ui;
@@ -16,7 +19,7 @@ use tui::{
 };
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
-    // Main screen areas.
+    // Main screen areas (aka "chunks").
     let chunks = Layout::default()
         .constraints(
             [
@@ -28,7 +31,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .as_ref(),
         )
         .split(f.size());
-    // Create tabs (labels for tabs).
+    // Create UI tabs (labels for tabs).
     let tab_titles = app
         .tabs
         .titles
@@ -44,8 +47,8 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     match app.tabs.index {
         0 => help_ui::draw_help_tab(f, app, chunks[1]),
         1 => file_manager_ui::draw_file_manager_tab(f, app, chunks[1]),
-        2 => text_editor_ui::draw_text_editor_tab(f, app, chunks[1]),
-        3 => search_ui::draw_search_tab(f, app, chunks[1]),
+        2 => search_ui::draw_search_tab(f, app, chunks[1]),
+        3 => text_editor_ui::draw_text_editor_tab(f, app, chunks[1]),
         4 => terminal_ui::draw_terminal_tab(f, app, chunks[1]),
         _ => {}
     };

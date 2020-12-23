@@ -1,3 +1,5 @@
+//! Junk. Testing subprocess execution.
+
 use async_std::prelude::*;
 //use async_macros::join;
 use std::future;

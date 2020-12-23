@@ -1,3 +1,5 @@
+//! Main entry point. This is where the store begins.
+
 #![deny(unreachable_patterns)]
 
 mod app;
@@ -53,6 +55,7 @@ fn main() -> Result<(), Box<dyn ErrorTrait>> {
     Ok(())
 }
 
+/// A helper function for 'main()' so that main is a little cleaner.
 fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
     enable_raw_mode()?;
     let mut stdout = stdout();
@@ -62,7 +65,7 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
 
     let mut terminal = Terminal::new(backend)?;
 
-    // Set up input handling
+    // Set up input handling.
     let (tx, rx) = mpsc::channel();
 
     let mut app = App::new("Editor", true);
