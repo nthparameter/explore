@@ -55,15 +55,39 @@ fn main() -> Result<(), Box<dyn ErrorTrait>> {
     Ok(())
 }
 
+/// RAII wrapper to undo changes to the terminal on exit.
+struct FullMouseTerminal(Terminal<CrosstermBackend<std::io::Stdout>>);
+
+impl FullMouseTerminal {
+    fn new() -> Result<Self, crossterm::ErrorKind> {
+        let mut stdout = stdout();
+        enable_raw_mode()?;
+        if let Err(e) = execute!(stdout, EnterAlternateScreen, EnableMouseCapture) {
+            disable_raw_mode().expect("disable raw terminal mode.");
+            return Err(e);
+        }
+        let backend = CrosstermBackend::new(stdout);
+        let mut terminal = Terminal::new(backend)?;
+        terminal.clear()?;
+        Ok(Self(terminal))
+    }
+}
+
+impl Drop for FullMouseTerminal {
+    fn drop(&mut self) {
+        execute!(
+            self.0.backend_mut(),
+            LeaveAlternateScreen,
+            DisableMouseCapture
+        ).expect("");
+        disable_raw_mode().expect("disable raw terminal mode.");
+        self.0.show_cursor().expect("show terminal cursor.");
+    }
+}
+
 /// A helper function for 'main()' so that main is a little cleaner.
 fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
-    enable_raw_mode()?;
-    let mut stdout = stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-
-    let backend = CrosstermBackend::new(stdout);
-
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = FullMouseTerminal::new()?;
 
     // Set up input handling.
     let (tx, rx) = mpsc::channel();
@@ -86,36 +110,20 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
         }
     });
 
-    terminal.clear()?;
-
     for i in cmd_args.file_paths {
         app.open_file(std::path::Path::new(&i));
     }
 
     // Handle events until `app.should_quit`.
-    loop {
-        terminal.draw(|f| ui::app_ui::draw(f, &mut app))?;
+    while !app.should_quit {
+        terminal.0.draw(|frame| ui::app_ui::draw(frame, &mut app))?;
         match rx.recv()? {
             Event::Input(event) => {
-                app.debug_event = event;
                 app.handle_event(&event);
-                if app.should_quit {
-                    disable_raw_mode()?;
-                    execute!(
-                        terminal.backend_mut(),
-                        LeaveAlternateScreen,
-                        DisableMouseCapture
-                    )?;
-                    terminal.show_cursor()?;
-                    break;
-                }
             }
             Event::Tick => {
                 app.on_tick();
             }
-        }
-        if app.should_quit {
-            break;
         }
     }
 
