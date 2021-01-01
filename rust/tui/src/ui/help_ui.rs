@@ -13,7 +13,7 @@ use tui::{
     Frame,
 };
 
-pub fn draw_help_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+pub fn draw_help_tab<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
@@ -25,5 +25,5 @@ where
     ));
     let text = vec![Spans::from(format!("{}", "This will be helpful someday."))];
     let paragraph = Paragraph::new(text).block(block);
-    f.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);
 }

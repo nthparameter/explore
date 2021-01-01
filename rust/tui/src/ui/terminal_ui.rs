@@ -9,18 +9,18 @@ use tui::{
     Frame,
 };
 
-pub fn draw_terminal_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+pub fn draw_terminal_tab<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
     let chunks = Layout::default()
         .constraints([Constraint::Length(2), Constraint::Min(10)].as_ref())
         .split(area);
-    draw_output(f, app, chunks[0]);
-    draw_input(f, app, chunks[1]);
+    draw_output(frame, app, chunks[0]);
+    draw_input(frame, app, chunks[1]);
 }
 
-fn draw_output<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+fn draw_output<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
@@ -39,10 +39,10 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: false });
-    f.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);
 }
 
-fn draw_input<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+fn draw_input<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
@@ -60,5 +60,5 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
-    f.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);
 }

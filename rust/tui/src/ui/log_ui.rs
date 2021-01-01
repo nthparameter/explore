@@ -11,7 +11,7 @@ use tui::{
     Frame,
 };
 
-pub fn draw_log_panel<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+pub fn draw_log_panel<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
@@ -40,5 +40,6 @@ where
         .rev()
         .collect::<Vec<_>>();
     let paragraph = Paragraph::new(lines).block(block);
-    f.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);
+    // app.area_handler.append(Area::new("log_panel", area));
 }

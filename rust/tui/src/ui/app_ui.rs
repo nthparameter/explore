@@ -18,7 +18,10 @@ use tui::{
     Frame,
 };
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+/// Root draw call for the application. This will call draw() on all needed
+/// nested UI elements.
+pub fn draw<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
+    // app.area_handler.clear();
     // Main screen areas (aka "chunks").
     let chunks = Layout::default()
         .constraints(
@@ -30,7 +33,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             ]
             .as_ref(),
         )
-        .split(f.size());
+        .split(frame.size());
     // Create UI tabs (labels for tabs).
     let tab_titles = app
         .tabs
@@ -42,17 +45,18 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .block(Block::default().borders(Borders::BOTTOM).title(app.title))
         .highlight_style(Style::default().fg(Color::Yellow))
         .select(app.tabs.index);
-    f.render_widget(tabs, chunks[0]);
+    frame.render_widget(tabs, chunks[0]);
     // Draw tab contents (body of tab).
     match app.tabs.index {
-        0 => help_ui::draw_help_tab(f, app, chunks[1]),
-        1 => file_manager_ui::draw_file_manager_tab(f, app, chunks[1]),
-        2 => search_ui::draw_search_tab(f, app, chunks[1]),
-        3 => text_editor_ui::draw_text_editor_tab(f, app, chunks[1]),
-        4 => terminal_ui::draw_terminal_tab(f, app, chunks[1]),
+        0 => help_ui::draw_help_tab(frame, app, chunks[1]),
+        1 => file_manager_ui::draw_file_manager_tab(frame, app, chunks[1]),
+        2 => search_ui::draw_search_tab(frame, app, chunks[1]),
+        3 => text_editor_ui::draw_text_editor_tab(frame, app, chunks[1]),
+        4 => terminal_ui::draw_terminal_tab(frame, app, chunks[1]),
         _ => {}
     };
     // Draw debug view.
-    debug_ui::draw_debug_panel(f, app, chunks[2]);
-    log_ui::draw_log_panel(f, app, chunks[3]);
+    debug_ui::draw_debug_panel(frame, app, chunks[2]);
+    log_ui::draw_log_panel(frame, app, chunks[3]);
+    // app.area_handler.append(Area::new("app", frame.size()));
 }
