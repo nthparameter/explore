@@ -87,6 +87,7 @@ impl<'a> App<'a> {
 
 impl<'a> EventHandler for App<'_> {
     fn handle_event(&mut self, event: &crossterm::event::Event) {
+        self.debug_event = *event;
         if let crossterm::event::Event::Key(key_event) = event {
             match *key_event {
                 CTRL_N => self.new_file(),
