@@ -9,6 +9,7 @@ mod key_const;
 mod logging;
 //mod open_file_view;
 mod proc;
+mod program_window;
 mod text_buffer;
 mod text_window;
 mod ui;
@@ -17,7 +18,7 @@ mod window;
 
 use crate::app::App;
 use crate::args::CmdArgs;
-use crate::window::EventHandler;
+use crate::window::Window;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -25,7 +26,7 @@ use crossterm::{
 };
 use key_const::*;
 use log;
-
+//use scopeguard;
 use std::{
     error::Error as ErrorTrait,
     io::{stdout, Write},
@@ -92,7 +93,7 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
     // Set up input handling.
     let (tx, rx) = mpsc::channel();
 
-    let mut app = App::new("Editor", true);
+    let mut app = App::new("Editor");
 
     let tick_rate = Duration::from_millis(200);
     thread::spawn(move || {

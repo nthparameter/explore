@@ -1,6 +1,6 @@
 use crate::key_const::*;
 use crate::text_buffer::TextBuffer;
-use crate::window::EventHandler;
+use crate::window::{EscalationEvent, Window};
 use std::sync::{Arc, Mutex};
 /*
 #[derive(Debug, Clone)]
@@ -28,6 +28,7 @@ pub struct TextWindow<'a> {
     pub scroll_top: usize,
     pub scroll_left: usize,
     pub text_buffer: Arc<Mutex<TextBuffer>>,
+    bounds: tui::layout::Rect,
 }
 
 impl<'a> TextWindow<'a> {
@@ -40,6 +41,7 @@ impl<'a> TextWindow<'a> {
             scroll_top: 0,
             scroll_left: 0,
             text_buffer: text_buffer,
+            bounds: tui::layout::Rect::new(0, 0, 0, 0),
         }
     }
 
@@ -98,8 +100,12 @@ impl<'a> TextWindow<'a> {
     }
 }
 
-impl<'a> EventHandler for TextWindow<'a> {
-    fn handle_event(&mut self, event: &crossterm::event::Event) {
+impl<'a> Window for TextWindow<'a> {
+    fn contains(&self, x: u16, y: u16) -> bool {
+        tui::layout::Rect::new(x, y, 0, 0).intersects(self.bounds)
+    }
+
+    fn handle_event(&mut self, event: &crossterm::event::Event) -> EscalationEvent {
         if let crossterm::event::Event::Key(key_event) = event {
             match *key_event {
                 CTRL_DOWN => self.on_scroll_down(),
@@ -107,10 +113,45 @@ impl<'a> EventHandler for TextWindow<'a> {
                 KEY_PAGE_DOWN => self.on_page_down(),
                 KEY_PAGE_UP => self.on_page_up(),
                 _ => {
-                    self.text_buffer.lock().unwrap().handle_event(event);
+                    {
+                        let tb = &mut self.text_buffer.lock().unwrap();
+                        match *key_event {
+                            CTRL_END => tb.pen_bottom(),
+                            CTRL_HOME => tb.pen_top(),
+                            CTRL_C => tb.copy_selection(),
+                            CTRL_V => tb.paste(),
+                            CTRL_X => tb.cut_selection(),
+                            CTRL_Y => tb.redo(),
+                            CTRL_Z => tb.undo(),
+                            KEY_DOWN => tb.pen_down_or_end(),
+                            KEY_END => tb.pen_row_end(),
+                            KEY_ENTER => tb.carriage_return(),
+                            KEY_HOME => tb.pen_row_start(),
+                            KEY_LEFT => tb.pen_left(),
+                            KEY_RIGHT => tb.pen_right(),
+                            KEY_UP => tb.pen_up_or_start(),
+                            crossterm::event::KeyEvent {
+                                code: ch,
+                                modifiers: crossterm::event::KeyModifiers::CONTROL,
+                            } => return EscalationEvent::Unhandled,
+                            crossterm::event::KeyEvent {
+                                code: ch,
+                                modifiers: crossterm::event::KeyModifiers::ALT,
+                            } => return EscalationEvent::Unhandled,
+                            _ => match key_event.code {
+                                crossterm::event::KeyCode::Char(ch) => tb.insert_letter(ch),
+                                _ => return EscalationEvent::Unhandled,
+                            },
+                        }
+                    }
                     self.scroll_to_pen();
                 }
             }
         }
+        EscalationEvent::Handled
+    }
+
+    fn reshape(&mut self, rect: &tui::layout::Rect) {
+        self.bounds = *rect;
     }
 }

@@ -29,7 +29,7 @@ pub fn draw<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
                 Constraint::Length(3),
                 Constraint::Min(0),
                 Constraint::Length(4),
-                Constraint::Length(4),
+                Constraint::Length(14),
             ]
             .as_ref(),
         )

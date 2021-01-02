@@ -1,5 +1,6 @@
 use crate::key_const::*;
-use crate::window::EventHandler;
+//use crate::window::{EscalationEvent, EventHandler};
+use log;
 use more_asserts::*;
 use std::iter;
 use std::path::Path;
@@ -233,7 +234,7 @@ impl<'a> TextBuffer {
     }
 
     /// Add a character to the buffer at the pen row/col location.
-    fn insert_letter(&mut self, ch: char) {
+    pub fn insert_letter(&mut self, ch: char) {
         let offset = self.rows[self.pen_row] + self.pen_col;
         self.text = self.text[0..offset].to_string() + &ch.to_string() + &self.text[offset..];
         self.parse_text();
@@ -378,9 +379,10 @@ impl<'a> TextBuffer {
         }
     */
 }
-
-impl<'a> EventHandler for TextBuffer {
-    fn handle_event(&mut self, event: &crossterm::event::Event) {
+/*
+impl<'a> Window for TextBuffer {
+    fn handle_event(&mut self, event: &crossterm::event::Event) -> EscalationEvent {
+        log::info!("handle_event");
         if let crossterm::event::Event::Key(key_event) = event {
             match *key_event {
                 CTRL_END => self.pen_bottom(),
@@ -400,19 +402,21 @@ impl<'a> EventHandler for TextBuffer {
                 crossterm::event::KeyEvent {
                     code: ch,
                     modifiers: crossterm::event::KeyModifiers::CONTROL,
-                } => {}
+                } => return EscalationEvent::Unhandled,
                 crossterm::event::KeyEvent {
                     code: ch,
                     modifiers: crossterm::event::KeyModifiers::ALT,
-                } => {}
+                } => return EscalationEvent::Unhandled,
                 _ => match key_event.code {
                     crossterm::event::KeyCode::Char(ch) => self.insert_letter(ch),
-                    _ => {}
+                    _ => return EscalationEvent::Unhandled,
                 },
             }
         }
+        log::info!("true");
+        return EscalationEvent::Handled;
     }
-}
+}*/
 
 pub struct TextBufferIterator<'a> {
     tb: &'a TextBuffer,
