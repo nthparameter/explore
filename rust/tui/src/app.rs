@@ -2,8 +2,12 @@
 
 use crate::buffer_manager::BufferManager;
 use crate::debug_window::DebugWindow;
+use crate::file_manager_window::FileManagerWindow;
+use crate::help_window::HelpWindow;
 use crate::key_const::*;
 use crate::log_window::LogWindow;
+use crate::search_window::SearchWindow;
+use crate::terminal_window::TerminalWindow;
 use crate::tabs_window::TabsWindow;
 use crate::text_window::TextWindow;
 //use crate::program_window::ProgramWindow;
@@ -26,14 +30,18 @@ pub struct App<'a> {
     child: Vec<Box<Window>>,
     pub debug_event: crossterm::event::Event,
     pub debug_window: DebugWindow,
+    pub file_manager_window: FileManagerWindow,
+    pub help_window: HelpWindow,
     pub log_window: LogWindow,
     pub progress: f64,
     //pub open_file_view: OpenFileView,
+    pub search_window: SearchWindow,
     pub should_quit: bool,
     //pub program_window: ProgramWindow,
+    pub tabs_window: TabsWindow,
+    pub terminal_window: TerminalWindow,
     pub text_window: Box<TextWindow<'a>>,
     //pub area_handler: AreaHandler,
-    pub tabs_window: TabsWindow,
     pub title: &'a str,
     pub tabs: TabsState<'a>,
     pub draw_time: std::time::Duration,
@@ -43,6 +51,9 @@ impl<'a> App<'a> {
     pub fn new(title: &'a str) -> Self {
         log::info!("Creating App");
         let mut buffer_manager = BufferManager::new();
+        let terminal_window = Box::new(TextWindow::new(
+            buffer_manager.new_text_buffer(std::path::Path::new(&"")),
+        ));
         let text_window = Box::new(TextWindow::new(
             buffer_manager.new_text_buffer(std::path::Path::new(&"")),
         ));
@@ -56,10 +67,14 @@ impl<'a> App<'a> {
             child: vec![],
             debug_event: crossterm::event::Event::Resize(1, 1),
             debug_window: DebugWindow::default(),
+            file_manager_window: FileManagerWindow::default(),
+            help_window: HelpWindow::default(),
             log_window: LogWindow::default(),
             progress: 0.0,
+            search_window: SearchWindow::default(),
             should_quit: false,
             tabs_window: TabsWindow::default(),
+            terminal_window: TerminalWindow::default(),
             title,
             tabs: ts,
             //program_window: ProgramWindow::new(&mut self),
@@ -140,7 +155,15 @@ impl<'a> Window for App<'_> {
         /*self.tabs_window.draw(frame);*/
         // Only render the visible (selected) tab.
         //self.child[self.tabs.index].draw(frame);
-        self.text_window.draw(frame);
+        match self.tabs.index {
+            0 => self.help_window.draw(frame),
+            1 => self.file_manager_window.draw(frame),
+            2 => self.search_window.draw(frame),
+            3 => self.text_window.draw(frame),
+            4 => self.terminal_window.draw(frame),
+            _ => {}
+        };
+        //self.text_window.draw(frame);
         self.debug_window.draw(frame);
         self.log_window.draw(frame);
     }
@@ -150,7 +173,15 @@ impl<'a> Window for App<'_> {
         match event {
             crossterm::event::Event::Key(key_event) => {
                 log::info!("handle key event {:?}", key_event);
-                match self.text_window.handle_event(event) {
+                let focus: &mut Window = match self.tabs.index {
+                    0 => &mut self.help_window,
+                    1 => &mut self.file_manager_window,
+                    2 => &mut self.search_window,
+                    3 => &mut *self.text_window,
+                    4 => &mut self.terminal_window,
+                    _ => panic!("app tabs index invalid"),
+                };
+                match focus.handle_event(event) {
                     EscalationEvent::QuitProgram => self.should_quit = true,
                     EscalationEvent::Unhandled => {
                         log::info!("handle_event() escalation");
@@ -206,6 +237,10 @@ impl<'a> Window for App<'_> {
         for child in &mut self.child {
             child.reshape(&chunks[1]);
         }
+        self.file_manager_window.reshape(&chunks[1]);
+        self.help_window.reshape(&chunks[1]);
+        self.search_window.reshape(&chunks[1]);
+        self.terminal_window.reshape(&chunks[1]);
         self.text_window.reshape(&chunks[1]);
         self.debug_window.reshape(&chunks[2]);
         self.log_window.reshape(&chunks[3]);

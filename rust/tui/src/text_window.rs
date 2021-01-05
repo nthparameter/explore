@@ -127,7 +127,6 @@ impl<'a> TextWindow<'a> {
             .collect::<Vec<Spans>>();
         let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
         frame.render_widget(paragraph, area);
-        log::info!("draw text window");
 
         // Show the cursor if it's in the view.
         let height = inner_area.height as usize;

@@ -17,7 +17,7 @@ impl Window for TabsWindow {
         tui::layout::Rect::new(x, y, 0, 0).intersects(self.bounds)
     }
 
-    fn draw(&self, frame: &mut AppFrame /*, app: &mut App*/) {}
+    fn draw(&self, frame: &mut AppFrame) {}
 
     fn handle_event(&mut self, event: &crossterm::event::Event) -> EscalationEvent {
         log::info!("handle_event() {:?}", event);

@@ -1,4 +1,4 @@
-//! Main entry point. This is where the store begins.
+//! Main entry point. This is where the story begins.
 
 #![deny(unreachable_patterns)]
 
@@ -6,13 +6,17 @@ mod app;
 mod args;
 mod buffer_manager;
 mod debug_window;
+mod file_manager_window;
+mod help_window;
 mod key_const;
 mod log_window;
 mod logging;
 //mod open_file_view;
 mod proc;
 mod program_window;
+mod search_window;
 mod tabs_window;
+mod terminal_window;
 mod text_buffer;
 mod text_window;
 mod ui;
