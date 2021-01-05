@@ -15,7 +15,7 @@ pub fn draw_file_manager_tab<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let chunks = Layout::default()
+    /*let chunks = Layout::default()
         .constraints(
             [
                 Constraint::Length(1),
@@ -32,14 +32,14 @@ where
     //draw_line_numbers(frame, app, h_chunks[0]);
     draw_text(frame, app, h_chunks[1]);
 
-    //frame.set_cursor(app.pen_col as u16, app.pen_row as u16);
+    //frame.set_cursor(app.pen_col as u16, app.pen_row as u16);*/
 }
 
 fn draw_text<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tw = &mut app.text_window;
+    /*let tw = &mut app.text_window;
     let tb = &tw.text_buffer.lock().unwrap();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &tb.name,
@@ -71,7 +71,7 @@ where
             inner_area.x + (tb.pen_col - tw.scroll_left) as u16,
             inner_area.y + (tb.pen_row - tw.scroll_top) as u16,
         );
-    }
+    }*/
     /*
     let text = vec![
         Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
@@ -107,7 +107,7 @@ fn draw_line_numbers<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tw = &mut app.text_window;
+    /*let tw = &mut app.text_window;
     let tb = &tw.text_buffer.lock().unwrap();
     let block = Block::default().borders(Borders::TOP).title(Span::styled(
         &tb.name,
@@ -128,5 +128,5 @@ where
         })
         .collect::<Vec<Spans>>();
     let paragraph = Paragraph::new(text).block(block);
-    frame.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);*/
 }

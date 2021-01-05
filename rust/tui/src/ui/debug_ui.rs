@@ -5,10 +5,7 @@ use tui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Axis, BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Row,
-        Sparkline, Table, Tabs, Wrap,
-    },
+    widgets::{Block, Borders, Paragraph, Row, Tabs, Wrap},
     Frame,
 };
 
@@ -31,6 +28,7 @@ where
         Spans::from(format!("scroll t:{} l:{}", tw.scroll_top, tw.scroll_left)),
         Spans::from(format!("pen r:{} c:{}", tb.pen_row, tb.pen_col)),
         Spans::from(format!("in:{:?}", app.debug_event)),
+        Spans::from(format!(" draw:{:>8}", format!("{:.3?}", app.draw_time))),
     ];
     let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
     frame.render_widget(paragraph, area);

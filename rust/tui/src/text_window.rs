@@ -1,7 +1,14 @@
+use crate::app::{App, AppFrame};
 use crate::key_const::*;
 use crate::text_buffer::TextBuffer;
 use crate::window::{EscalationEvent, Window};
 use std::sync::{Arc, Mutex};
+use tui::{
+    layout::{Constraint, Direction, Layout, Rect},
+    style::{Color, Modifier, Style},
+    text::{Span, Spans},
+    widgets::{Block, Borders, Paragraph, Row, Wrap},
+};
 /*
 #[derive(Debug, Clone)]
 pub struct TextWindowState {
@@ -20,6 +27,8 @@ impl Default for TextWindowState {
     }
 }*/
 
+/// A window displaying (or editing) a text document (or more specifically a
+/// TextBuffer).
 pub struct TextWindow<'a> {
     pub block: Option<tui::widgets::Block<'a>>,
     pub focused: bool,
@@ -98,11 +107,78 @@ impl<'a> TextWindow<'a> {
     pub fn set_text_buffer(&mut self, tb: Arc<Mutex<TextBuffer>>) {
         self.text_buffer = tb;
     }
+
+    /// Draw the body of the document (sans line numbers, etc.).
+    fn draw_text(&self, frame: &mut AppFrame, area: tui::layout::Rect) {
+        //log::info!("draw_text");
+        let tb = self.text_buffer.lock().unwrap();
+        let block = Block::default().borders(Borders::TOP).title(Span::styled(
+            &tb.name,
+            Style::default()
+                .fg(Color::Magenta)
+                .add_modifier(Modifier::BOLD),
+        ));
+        let inner_area = block.inner(area);
+        let text = tb
+            .rows()
+            .skip(self.scroll_top)
+            .take(area.height as usize)
+            .map(|s| Spans::from(s))
+            .collect::<Vec<Spans>>();
+        let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
+        frame.render_widget(paragraph, area);
+        log::info!("draw text window");
+
+        // Show the cursor if it's in the view.
+        let height = inner_area.height as usize;
+        let width = inner_area.width as usize;
+        if self.scroll_top <= tb.pen_row
+            && self.scroll_top + height > tb.pen_row
+            && self.scroll_left <= tb.pen_col
+            && self.scroll_left + width > tb.pen_col
+        {
+            frame.set_cursor(
+                inner_area.x + (tb.pen_col - self.scroll_left) as u16,
+                inner_area.y + (tb.pen_row - self.scroll_top) as u16,
+            );
+        }
+    }
+
+    /// Draw the line numbers (only).
+    fn draw_line_numbers(&self, frame: &mut AppFrame, area: tui::layout::Rect) {
+        let block = Block::default().borders(Borders::TOP);
+        let text = self
+            .text_buffer
+            .lock()
+            .unwrap()
+            .line_numbers()
+            .skip(self.scroll_top)
+            .take(area.height as usize)
+            .map(|s| {
+                if s == 0 {
+                    Spans::from("")
+                } else {
+                    Spans::from(s.to_string())
+                }
+            })
+            .collect::<Vec<Spans>>();
+        let paragraph = Paragraph::new(text).block(block);
+        frame.render_widget(paragraph, area);
+    }
 }
 
 impl<'a> Window for TextWindow<'a> {
     fn contains(&self, x: u16, y: u16) -> bool {
         tui::layout::Rect::new(x, y, 0, 0).intersects(self.bounds)
+    }
+
+    fn draw(&self, frame: &mut AppFrame) {
+        let h_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Length(7), Constraint::Min(0)].as_ref())
+            .split(self.bounds);
+        self.draw_line_numbers(frame, h_chunks[0]);
+        self.draw_text(frame, h_chunks[1]);
     }
 
     fn handle_event(&mut self, event: &crossterm::event::Event) -> EscalationEvent {
@@ -152,6 +228,11 @@ impl<'a> Window for TextWindow<'a> {
     }
 
     fn reshape(&mut self, rect: &tui::layout::Rect) {
+        log::info!("reshape {:?}", rect);
         self.bounds = *rect;
+        //self.render_width = inner_area.width as usize;
+        //self.render_height = inner_area.height as usize;
+        self.render_width = self.bounds.width as usize;
+        self.render_height = self.bounds.height as usize - 1;
     }
 }

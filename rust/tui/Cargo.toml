@@ -3,6 +3,7 @@ name = "tui-test"
 version = "0.1.0"
 authors = ["nthparameter <nthparameter@gmail.com>"]
 edition = "2018"
+#debug = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

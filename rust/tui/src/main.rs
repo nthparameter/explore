@@ -5,11 +5,14 @@
 mod app;
 mod args;
 mod buffer_manager;
+mod debug_window;
 mod key_const;
+mod log_window;
 mod logging;
 //mod open_file_view;
 mod proc;
 mod program_window;
+mod tabs_window;
 mod text_buffer;
 mod text_window;
 mod ui;
@@ -80,7 +83,8 @@ impl Drop for FullMouseTerminal {
             self.0.backend_mut(),
             LeaveAlternateScreen,
             DisableMouseCapture
-        ).expect("");
+        )
+        .expect("");
         disable_raw_mode().expect("disable raw terminal mode.");
         self.0.show_cursor().expect("show terminal cursor.");
     }
@@ -117,7 +121,12 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
 
     // Handle events until `app.should_quit`.
     while !app.should_quit {
-        terminal.0.draw(|frame| ui::app_ui::draw(frame, &mut app))?;
+        let mut start_draw = Instant::now();
+        //terminal.0.draw(|frame| ui::app_ui::draw(frame, &mut app))?;
+        terminal.0.draw(|frame| app.draw(frame))?;
+        app.debug_window.draw_time = start_draw.elapsed();
+        app.draw_time = app.debug_window.draw_time;
+
         match rx.recv()? {
             Event::Input(event) => {
                 app.handle_event(&event);

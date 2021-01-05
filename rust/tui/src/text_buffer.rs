@@ -379,44 +379,6 @@ impl<'a> TextBuffer {
         }
     */
 }
-/*
-impl<'a> Window for TextBuffer {
-    fn handle_event(&mut self, event: &crossterm::event::Event) -> EscalationEvent {
-        log::info!("handle_event");
-        if let crossterm::event::Event::Key(key_event) = event {
-            match *key_event {
-                CTRL_END => self.pen_bottom(),
-                CTRL_HOME => self.pen_top(),
-                CTRL_C => self.copy_selection(),
-                CTRL_V => self.paste(),
-                CTRL_X => self.cut_selection(),
-                CTRL_Y => self.redo(),
-                CTRL_Z => self.undo(),
-                KEY_DOWN => self.pen_down_or_end(),
-                KEY_END => self.pen_row_end(),
-                KEY_ENTER => self.carriage_return(),
-                KEY_HOME => self.pen_row_start(),
-                KEY_LEFT => self.pen_left(),
-                KEY_RIGHT => self.pen_right(),
-                KEY_UP => self.pen_up_or_start(),
-                crossterm::event::KeyEvent {
-                    code: ch,
-                    modifiers: crossterm::event::KeyModifiers::CONTROL,
-                } => return EscalationEvent::Unhandled,
-                crossterm::event::KeyEvent {
-                    code: ch,
-                    modifiers: crossterm::event::KeyModifiers::ALT,
-                } => return EscalationEvent::Unhandled,
-                _ => match key_event.code {
-                    crossterm::event::KeyCode::Char(ch) => self.insert_letter(ch),
-                    _ => return EscalationEvent::Unhandled,
-                },
-            }
-        }
-        log::info!("true");
-        return EscalationEvent::Handled;
-    }
-}*/
 
 pub struct TextBufferIterator<'a> {
     tb: &'a TextBuffer,

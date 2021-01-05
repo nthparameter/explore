@@ -72,33 +72,33 @@ where
         );
     }
     /*
-    let text = vec![
-        Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
-        Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
-        Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
-        Spans::from(""),
-        Spans::from(vec![
-            Span::from("For example: "),
-            Span::styled("under", Style::default().fg(Color::Red)),
-            Span::raw(" "),
-            Span::styled("the", Style::default().fg(Color::Green)),
-            Span::raw(" "),
-            Span::styled("rainbow", Style::default().fg(Color::Blue)),
-            Span::raw("."),
-        ]),
-        Spans::from(vec![
-        Spans::from(
-            "One more thing is that it should display unicode characters: 10€"
-        ),
-    ];
-    let block = Block::default().borders(Borders::NONE).title(Span::styled(
-        "Log",
-        Style::default()
-            .fg(Color::Magenta)
-            .add_modifier(Modifier::BOLD),
-    ));
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
-    frame.render_widget(paragraph, area);
+        let text = vec![
+            Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
+            Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
+            Spans::from("This is a paragraph with several lines. You can change style your text the way you want"),
+            Spans::from(""),
+            Spans::from(vec![
+                Span::from("For example: "),
+                Span::styled("under", Style::default().fg(Color::Red)),
+                Span::raw(" "),
+                Span::styled("the", Style::default().fg(Color::Green)),
+                Span::raw(" "),
+                Span::styled("rainbow", Style::default().fg(Color::Blue)),
+                Span::raw("."),
+            ]),
+            Spans::from(vec![
+            Spans::from(
+                "One more thing is that it should display unicode characters: 10€"
+            ),
+        ];
+        let block = Block::default().borders(Borders::NONE).title(Span::styled(
+            "Log",
+            Style::default()
+                .fg(Color::Magenta)
+                .add_modifier(Modifier::BOLD),
+        ));
+        let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+        frame.render_widget(paragraph, area);
     */
 }
 

@@ -1,78 +1,70 @@
 //! Top level application model.
 
 use crate::buffer_manager::BufferManager;
+use crate::debug_window::DebugWindow;
 use crate::key_const::*;
+use crate::log_window::LogWindow;
+use crate::tabs_window::TabsWindow;
 use crate::text_window::TextWindow;
 //use crate::program_window::ProgramWindow;
 use crate::util::TabsState;
 use crate::window::{EscalationEvent, Window};
 use log;
+use tui::{
+    backend::CrosstermBackend,
+    layout::{Constraint, Direction, Layout, Rect},
+    style::{Color, Modifier, Style},
+    text::{Span, Spans},
+    widgets::{Block, Borders, Paragraph, Row, Tabs, Wrap},
+};
 
-/// A set of nested rectangles that maps a mouse click to the appropriate event
-/// handler.
-/*
-struct ClickArea { name: string, area: Rect, handler: EventHandler, }
-struct AreaHandler { areas: Vec<ClickArea>, }
-impl AreaHandler {
-    pub fn new() -> Self {
-        Self {
-            areas: vec!(),
-        }
-    }
-
-    pub fn handler(x: i16, y: i16) -> Option<&ClickArea> {
-        for area in areas {
-            if area.contains(x, y) {
-                return Some(area.handler);
-            }
-        }
-        None
-    }
-
-    /// Add click area to the back, potentially being covered by existing areas.
-    pub fn push_back(click_area: ClickArea) {
-    }
-
-    /// Add click area to the front, potentially covering existing areas.
-    pub fn push_front(click_area: ClickArea) {
-    }
-}
-*/
+pub type AppFrame<'a> = tui::Frame<'a, CrosstermBackend<std::io::Stdout>>;
 
 pub struct App<'a> {
+    bounds: tui::layout::Rect,
     pub buffer_manager: BufferManager,
-    pub title: &'a str,
-    pub tabs: TabsState<'a>,
-    pub progress: f64,
+    child: Vec<Box<Window>>,
     pub debug_event: crossterm::event::Event,
+    pub debug_window: DebugWindow,
+    pub log_window: LogWindow,
+    pub progress: f64,
     //pub open_file_view: OpenFileView,
     pub should_quit: bool,
     //pub program_window: ProgramWindow,
-    pub text_window: TextWindow<'a>,
+    pub text_window: Box<TextWindow<'a>>,
     //pub area_handler: AreaHandler,
-    bounds: tui::layout::Rect,
+    pub tabs_window: TabsWindow,
+    pub title: &'a str,
+    pub tabs: TabsState<'a>,
+    pub draw_time: std::time::Duration,
 }
 
 impl<'a> App<'a> {
-    pub fn new(title: &'a str, /*log: &mut Log,*/) -> Self {
+    pub fn new(title: &'a str) -> Self {
         log::info!("Creating App");
         let mut buffer_manager = BufferManager::new();
-        let text_window =
-            TextWindow::new(buffer_manager.new_text_buffer(std::path::Path::new(&"")));
+        let text_window = Box::new(TextWindow::new(
+            buffer_manager.new_text_buffer(std::path::Path::new(&"")),
+        ));
         //let mut open_file_view = OpenFileView::new(buffer_manager);
 
         let mut ts = TabsState::new(vec!["Help", "Open", "Search", "Edit", "Terminal"]);
         ts.index = 3;
         Self {
+            bounds: tui::layout::Rect::new(0, 0, 0, 0),
             buffer_manager,
+            child: vec![],
+            debug_event: crossterm::event::Event::Resize(1, 1),
+            debug_window: DebugWindow::default(),
+            log_window: LogWindow::default(),
+            progress: 0.0,
+            should_quit: false,
+            tabs_window: TabsWindow::default(),
             title,
             tabs: ts,
-            progress: 0.0,
-            debug_event: crossterm::event::Event::Resize(1, 1),
-            should_quit: false,
             //program_window: ProgramWindow::new(&mut self),
             text_window,
-            bounds: tui::layout::Rect::new(0, 0, 0, 0),
+            draw_time: std::time::Duration::default(),
         }
     }
 
@@ -117,11 +109,12 @@ impl<'a> App<'a> {
     }
 
     pub fn on_tick(&mut self) {
-        // Update progress
+        self.debug_window.tick_count += 1;
+        /*// Update progress
         self.progress += 0.001;
         if self.progress > 1.0 {
             self.progress = 0.0;
-        }
+        }*/
     }
 }
 
@@ -130,11 +123,33 @@ impl<'a> Window for App<'_> {
         tui::layout::Rect::new(x, y, 0, 0).intersects(self.bounds)
     }
 
+    /// Root draw call for the application. This will call draw() on all needed
+    /// nested UI elements.
+    fn draw(&self, frame: &mut AppFrame /*, app: &mut App*/) {
+        // Create UI tabs (labels for tabs).
+        /*let tab_titles = app
+            .tabs
+            .titles
+            .iter()
+            .map(|t| Spans::from(Span::styled(*t, Style::default().fg(Color::Green))))
+            .collect();
+        let tabs = Tabs::new(tab_titles)
+            .block(Block::default().borders(Borders::BOTTOM).title(app.title))
+            .highlight_style(Style::default().fg(Color::Yellow))
+            .select(app.tabs.index);*/
+        /*self.tabs_window.draw(frame);*/
+        // Only render the visible (selected) tab.
+        //self.child[self.tabs.index].draw(frame);
+        self.text_window.draw(frame);
+        self.debug_window.draw(frame);
+        self.log_window.draw(frame);
+    }
+
     fn handle_event(&mut self, event: &crossterm::event::Event) -> EscalationEvent {
-        self.debug_event = *event;
+        self.debug_window.debug_event = *event;
         match event {
             crossterm::event::Event::Key(key_event) => {
-                log::info!("handle_event()");
+                log::info!("handle key event {:?}", key_event);
                 match self.text_window.handle_event(event) {
                     EscalationEvent::QuitProgram => self.should_quit = true,
                     EscalationEvent::Unhandled => {
@@ -163,11 +178,36 @@ impl<'a> Window for App<'_> {
                 self.reshape(&tui::layout::Rect::new(0, 0, *width, *height));
             }
         }
+        let tw = &self.text_window;
+        let tb = tw.text_buffer.lock().unwrap();
+        self.debug_window.pen_col = tb.pen_col;
+        self.debug_window.pen_row = tb.pen_col;
+        self.debug_window.scroll_left = tw.scroll_left;
+        self.debug_window.scroll_top = tw.scroll_top;
         EscalationEvent::Handled
     }
 
     fn reshape(&mut self, rect: &tui::layout::Rect) {
         log::info!("reshape({:?})", rect);
         self.bounds = *rect;
+        // Main screen areas (aka "chunks").
+        let chunks = Layout::default()
+            .constraints(
+                [
+                    Constraint::Length(3),
+                    Constraint::Min(0),
+                    Constraint::Length(5),
+                    Constraint::Length(14),
+                ]
+                .as_ref(),
+            )
+            .split(self.bounds);
+        self.tabs_window.reshape(&chunks[0]);
+        for child in &mut self.child {
+            child.reshape(&chunks[1]);
+        }
+        self.text_window.reshape(&chunks[1]);
+        self.debug_window.reshape(&chunks[2]);
+        self.log_window.reshape(&chunks[3]);
     }
 }

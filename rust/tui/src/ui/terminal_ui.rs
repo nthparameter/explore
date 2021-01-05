@@ -24,7 +24,7 @@ fn draw_output<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tw = &app.text_window;
+    /*let tw = &app.text_window;
     let tb = tw.text_buffer.lock().unwrap();
     let text = tb
         .rows()
@@ -39,14 +39,14 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: false });
-    frame.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);*/
 }
 
 fn draw_input<B>(frame: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let tb = app.text_window.text_buffer.lock().unwrap();
+    /*let tb = app.text_window.text_buffer.lock().unwrap();
     let text = tb
         .rows()
         .skip(app.text_window.scroll_top)
@@ -60,5 +60,5 @@ where
             .add_modifier(Modifier::BOLD),
     ));
     let paragraph = Paragraph::new(text).block(block); //.wrap(Wrap { trim: false });
-    frame.render_widget(paragraph, area);
+    frame.render_widget(paragraph, area);*/
 }
