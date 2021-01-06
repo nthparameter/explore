@@ -1,4 +1,4 @@
-//! User interface window.
+//! User interface to search across files and directories.
 
 use crate::app::{App, AppFrame};
 use crate::window::{EscalationEvent, Window};
@@ -12,7 +12,7 @@ use tui::{
     Frame,
 };
 
-/// A display of debug information for the program itself.
+/// Interface for searching files and directories.
 pub struct SearchWindow {
     bounds: tui::layout::Rect,
     pub debug_event: crossterm::event::Event,

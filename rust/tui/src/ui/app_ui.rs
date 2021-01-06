@@ -56,7 +56,7 @@ pub fn draw<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
         _ => {}
     };
     // Draw debug view.
-    debug_ui::draw_debug_panel(frame, app, chunks[2]);
-    log_ui::draw_log_panel(frame, app, chunks[3]);
+    //debug_ui::draw_debug_panel(frame, app, chunks[2]);
+    //log_ui::draw_log_panel(frame, app, chunks[3]);
     // app.area_handler.append(Area::new("app", frame.size()));
 }

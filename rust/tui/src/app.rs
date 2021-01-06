@@ -44,7 +44,6 @@ pub struct App<'a> {
     //pub area_handler: AreaHandler,
     pub title: &'a str,
     pub tabs: TabsState<'a>,
-    pub draw_time: std::time::Duration,
 }
 
 impl<'a> App<'a> {
@@ -79,7 +78,6 @@ impl<'a> App<'a> {
             tabs: ts,
             //program_window: ProgramWindow::new(&mut self),
             text_window,
-            draw_time: std::time::Duration::default(),
         }
     }
 
@@ -163,7 +161,6 @@ impl<'a> Window for App<'_> {
             4 => self.terminal_window.draw(frame),
             _ => {}
         };
-        //self.text_window.draw(frame);
         self.debug_window.draw(frame);
         self.log_window.draw(frame);
     }

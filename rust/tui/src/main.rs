@@ -19,7 +19,7 @@ mod tabs_window;
 mod terminal_window;
 mod text_buffer;
 mod text_window;
-mod ui;
+//mod ui;
 mod util;
 mod window;
 
@@ -126,10 +126,8 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
     // Handle events until `app.should_quit`.
     while !app.should_quit {
         let mut start_draw = Instant::now();
-        //terminal.0.draw(|frame| ui::app_ui::draw(frame, &mut app))?;
         terminal.0.draw(|frame| app.draw(frame))?;
         app.debug_window.draw_time = start_draw.elapsed();
-        app.draw_time = app.debug_window.draw_time;
 
         match rx.recv()? {
             Event::Input(event) => {
