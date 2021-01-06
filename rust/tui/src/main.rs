@@ -19,7 +19,6 @@ mod tabs_window;
 mod terminal_window;
 mod text_buffer;
 mod text_window;
-//mod ui;
 mod util;
 mod window;
 

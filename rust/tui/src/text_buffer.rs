@@ -156,6 +156,34 @@ impl<'a> TextBuffer {
         (rec_col, rec_row)
     }
 
+    pub fn backspace(&mut self) {
+        let shape = if self.pen_col == 0 {
+            if self.pen_row == 0 {
+                return;
+            }
+            Selection::Char {
+                col: self.get_row_width(self.pen_row - 1).unwrap(),
+                row: self.pen_row - 1,
+                chars: 1,
+            }
+        } else {
+            Selection::Char {
+                col: self.pen_col - 1, //////self.prior_chars_width(1),
+                row: self.pen_row,
+                chars: 1,
+            }
+        };
+        let old = self.yank(&shape);
+        self.transforms.push(Transform {
+            shape,
+            old,
+            new: "".to_string(),
+        });
+        let (col, row) = self.apply_transform();
+        self.pen_col = col;
+        self.pen_row = row;
+    }
+
     pub fn carriage_return(&mut self) {
         let shape = Selection::Char {
             col: self.pen_col,
@@ -178,6 +206,28 @@ impl<'a> TextBuffer {
         self.pen_right();
         */
     }
+
+    pub fn delete(&mut self) {
+        // Needs work
+        if self.pen_row + 1 == self.text_row_count &&
+            self.pen_col + 1 == self.get_row_width(self.pen_row).unwrap() {
+            return;
+        }
+        let shape = Selection::Char {
+            col: self.pen_col,
+            row: self.pen_row,
+            chars: 1,
+        };
+        let old = self.yank(&shape);
+        self.transforms.push(Transform {
+            shape,
+            old,
+            new: "".to_string(),
+        });
+        let (col, row) = self.apply_transform();
+        self.pen_col = col;
+        self.pen_row = row;
+   }
 
     pub fn yank(&self, shape: &Selection) -> String {
         match shape {

@@ -198,6 +198,8 @@ impl<'a> Window for TextWindow<'a> {
                             CTRL_X => tb.cut_selection(),
                             CTRL_Y => tb.redo(),
                             CTRL_Z => tb.undo(),
+                            KEY_BACKSPACE => tb.backspace(),
+                            KEY_DELETE => tb.delete(),
                             KEY_DOWN => tb.pen_down_or_end(),
                             KEY_END => tb.pen_row_end(),
                             KEY_ENTER => tb.carriage_return(),

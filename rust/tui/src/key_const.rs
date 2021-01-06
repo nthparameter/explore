@@ -68,113 +68,41 @@ pub const ALT_HOME: event::KeyEvent = event::KeyEvent {
 };
 
 /// Control key modified keys.
-pub const CTRL_DOWN: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Down,
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_END: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::End,
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_HOME: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Home,
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_A: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('a'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_B: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('b'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_C: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('c'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_D: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('d'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_E: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('e'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_F: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('f'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_G: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('g'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_H: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('h'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_I: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('i'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_J: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('j'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_K: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('k'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_L: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('l'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_M: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('m'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_N: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('n'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
+const_key_event!(CTRL_A, KeyCode::Char('a'), CONTROL);
+const_key_event!(CTRL_B, KeyCode::Char('b'), CONTROL);
+const_key_event!(CTRL_C, KeyCode::Char('c'), CONTROL);
+const_key_event!(CTRL_D, KeyCode::Char('d'), CONTROL);
+const_key_event!(CTRL_E, KeyCode::Char('e'), CONTROL);
+const_key_event!(CTRL_F, KeyCode::Char('f'), CONTROL);
+const_key_event!(CTRL_G, KeyCode::Char('g'), CONTROL);
+const_key_event!(CTRL_H, KeyCode::Char('h'), CONTROL);
+const_key_event!(CTRL_I, KeyCode::Char('i'), CONTROL);
+const_key_event!(CTRL_J, KeyCode::Char('j'), CONTROL);
+const_key_event!(CTRL_K, KeyCode::Char('k'), CONTROL);
+const_key_event!(CTRL_L, KeyCode::Char('l'), CONTROL);
+const_key_event!(CTRL_M, KeyCode::Char('m'), CONTROL);
+const_key_event!(CTRL_N, KeyCode::Char('n'), CONTROL);
 const_key_event!(CTRL_O, KeyCode::Char('o'), CONTROL);
 const_key_event!(CTRL_P, KeyCode::Char('p'), CONTROL);
 const_key_event!(CTRL_Q, KeyCode::Char('q'), CONTROL);
 const_key_event!(CTRL_R, KeyCode::Char('r'), CONTROL);
 const_key_event!(CTRL_S, KeyCode::Char('s'), CONTROL);
-pub const CTRL_T: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('t'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_U: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('u'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_V: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('v'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_W: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('w'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_X: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('x'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_Y: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('y'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_Z: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Char('z'),
-    modifiers: event::KeyModifiers::CONTROL,
-};
-pub const CTRL_UP: event::KeyEvent = event::KeyEvent {
-    code: KeyCode::Up,
-    modifiers: event::KeyModifiers::CONTROL,
-};
+const_key_event!(CTRL_T, KeyCode::Char('t'), CONTROL);
+const_key_event!(CTRL_U, KeyCode::Char('u'), CONTROL);
+const_key_event!(CTRL_V, KeyCode::Char('v'), CONTROL);
+const_key_event!(CTRL_W, KeyCode::Char('w'), CONTROL);
+const_key_event!(CTRL_X, KeyCode::Char('x'), CONTROL);
+const_key_event!(CTRL_Y, KeyCode::Char('y'), CONTROL);
+const_key_event!(CTRL_Z, KeyCode::Char('z'), CONTROL);
+
+const_key_event!(CTRL_DOWN, KeyCode::Down, CONTROL);
+const_key_event!(CTRL_END, KeyCode::End, CONTROL);
+const_key_event!(CTRL_HOME, KeyCode::Home, CONTROL);
+const_key_event!(CTRL_UP, KeyCode::Up, CONTROL);
 
 /// Plain keys.
+const_key_event!(KEY_BACKSPACE, Backspace);
+const_key_event!(KEY_DELETE, Delete);
 const_key_event!(KEY_DOWN, Down);
 const_key_event!(KEY_END, End);
 const_key_event!(KEY_ENTER, Enter);
