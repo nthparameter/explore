@@ -4,6 +4,7 @@
 
 mod app;
 mod args;
+mod color_window;
 mod buffer_manager;
 mod debug_window;
 mod file_manager_window;
@@ -103,7 +104,8 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
     let mut app = App::new("Editor");
 
     let tick_rate = Duration::from_millis(200);
-    thread::spawn(move || {
+    let thread_builder = thread::Builder::new().name("event-input".to_string());
+    thread_builder.spawn(move || {
         let mut last_tick = Instant::now();
         loop {
             // poll for tick rate duration, if no events, sent tick event.
@@ -111,8 +113,8 @@ fn start_tui(cmd_args: CmdArgs) -> Result<(), Box<dyn ErrorTrait>> {
             if elapsed >= tick_rate {
                 tx.send(Event::Tick).unwrap();
                 last_tick = Instant::now();
-            } else if event::poll(tick_rate - elapsed).unwrap() {
-                tx.send(Event::Input(event::read().unwrap()))
+            } else if event::poll(tick_rate - elapsed).expect("event poll") {
+                tx.send(Event::Input(event::read().expect("event::read")))
                     .expect("Send event on channel.");
             }
         }

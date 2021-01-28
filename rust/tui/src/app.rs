@@ -1,6 +1,7 @@
 //! Top level application model.
 
 use crate::buffer_manager::BufferManager;
+use crate::color_window::ColorWindow;
 use crate::debug_window::DebugWindow;
 use crate::file_manager_window::FileManagerWindow;
 use crate::help_window::HelpWindow;
@@ -28,6 +29,7 @@ pub struct App<'a> {
     bounds: tui::layout::Rect,
     pub buffer_manager: BufferManager,
     child: Vec<Box<Window>>,
+    pub color_window: ColorWindow,
     pub debug_event: crossterm::event::Event,
     pub debug_window: DebugWindow,
     pub file_manager_window: FileManagerWindow,
@@ -64,6 +66,7 @@ impl<'a> App<'a> {
             bounds: tui::layout::Rect::new(0, 0, 0, 0),
             buffer_manager,
             child: vec![],
+            color_window: ColorWindow::default(),
             debug_event: crossterm::event::Event::Resize(1, 1),
             debug_window: DebugWindow::default(),
             file_manager_window: FileManagerWindow::default(),
@@ -121,6 +124,11 @@ impl<'a> App<'a> {
         self.tabs.index = 4;
     }
 
+    pub fn on_select_color_tab(&mut self) {
+        log::info!("on_select_color_tab");
+        self.tabs.index = 5;
+    }
+
     pub fn on_tick(&mut self) {
         self.debug_window.tick_count += 1;
         /*// Update progress
@@ -159,6 +167,7 @@ impl<'a> Window for App<'_> {
             2 => self.search_window.draw(frame),
             3 => self.text_window.draw(frame),
             4 => self.terminal_window.draw(frame),
+            5 => self.color_window.draw(frame),
             _ => {}
         };
         self.debug_window.draw(frame);
@@ -176,6 +185,7 @@ impl<'a> Window for App<'_> {
                     2 => &mut self.search_window,
                     3 => &mut *self.text_window,
                     4 => &mut self.terminal_window,
+                    5 => &mut self.color_window,
                     _ => panic!("app tabs index invalid"),
                 };
                 match focus.handle_event(event) {
@@ -193,6 +203,7 @@ impl<'a> Window for App<'_> {
                             KEY_F3 => self.on_select_search_tab(),
                             KEY_F4 => self.on_select_editor_tab(),
                             KEY_F5 => self.on_select_terminal_tab(),
+                            KEY_F6 => self.on_select_color_tab(),
                             _ => return EscalationEvent::Unhandled,
                         }
                     }
@@ -234,6 +245,7 @@ impl<'a> Window for App<'_> {
         for child in &mut self.child {
             child.reshape(&chunks[1]);
         }
+        self.color_window.reshape(&chunks[1]);
         self.file_manager_window.reshape(&chunks[1]);
         self.help_window.reshape(&chunks[1]);
         self.search_window.reshape(&chunks[1]);
