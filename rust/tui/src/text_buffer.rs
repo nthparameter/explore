@@ -374,6 +374,22 @@ impl<'a> TextBuffer {
         self.rows = vec![0];
         self.row_ends = vec![];
         self.row_to_line = vec![1];
+        use regex::RegexSet;
+        let re_set = RegexSet::new(&[
+            r"^\n",
+            r"^a",
+            r"^b",
+            r"^\bmod\b",
+            //r"^.",
+
+            /*r"\n",
+            r"\bmod\b",
+            r".",*/
+        ]).unwrap();
+        log::info!("bbbbb {:?}", re_set.matches(&self.text).iter().collect::<Vec<_>>());
+        for rsm in re_set.matches(&self.text) {
+            log::info!("aaa {:?}", rsm);
+        }
         for (i, c) in self.text.chars().enumerate() {
             if c == '\n' {
                 self.lines.push(self.rows.len());
