@@ -14,6 +14,6 @@ async fn test_hyper() -> Result<(), Box<dyn std::error::Error>>{
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Hello, world!");
-    test_hyper();
+    test_hyper().await?;
     Ok(())
 }
